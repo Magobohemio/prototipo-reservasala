@@ -95,6 +95,11 @@
   .logout{font-size:12px;color:var(--ink2);text-decoration:underline;margin-left:4px;cursor:pointer}
 
   .controlbar{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:18px 0 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);position:relative}
+  .sede-pick{display:flex;align-items:center;gap:8px}
+  .sede-pick select{min-width:180px}
+  #favSedeBtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--line2);background:var(--card);font-size:18px;color:var(--line2);transition:.15s;flex:0 0 auto}
+  #favSedeBtn:hover{border-color:var(--amber);color:var(--amber)}
+  #favSedeBtn.on{color:#E7C66B;background:#191E1B;border-color:#191E1B}
   .ctrl{display:flex;flex-direction:column;gap:6px}
   .ctrl label{font-size:12px;font-weight:600;color:var(--ink2)}
   .datenav{display:flex;align-items:center;gap:6px}
@@ -350,7 +355,14 @@
   </div>
 
   <div class="controlbar" data-rfedge>
-    <span class="rf-float rf">RF-02 · consultar disponibilidad</span>
+    <span class="rf-float rf">RF-02 · consultar disponibilidad <span class="rf">RF-24 · sede</span></span>
+    <div class="ctrl">
+      <label>Sede</label>
+      <div class="sede-pick">
+        <select class="input" id="fSede"></select>
+        <button id="favSedeBtn" title="Marcar esta sede como favorita (default)">★</button>
+      </div>
+    </div>
     <div class="ctrl">
       <label>Fecha</label>
       <div class="datenav"><button id="prevDay">‹</button><div class="dlabel" id="dateLabel">hoy</div><button id="nextDay">›</button></div>
@@ -442,7 +454,7 @@ let reservations = [
 let nextId=100, dayOffset=0;
 
 /* ===== LOGIN ===== */
-function doLogin(){ $('passkey').classList.add('hidden'); $('login').classList.add('hidden'); $('app').classList.remove('hidden'); renderDate(); renderGrid(); }
+function doLogin(){ $('passkey').classList.add('hidden'); $('login').classList.add('hidden'); $('app').classList.remove('hidden'); initSede(); renderDate(); renderGrid(); }
 $('btnPasskey').onclick = () => { $('passkey').classList.remove('hidden'); setTimeout(doLogin,1700); };
 $('btnPass').onclick = () => doLogin();
 
@@ -458,7 +470,33 @@ $('prevDay').onclick=()=>{dayOffset--;renderDate();renderGrid();};
 $('nextDay').onclick=()=>{dayOffset++;renderDate();renderGrid();};
 
 /* ===== GRID ===== */
-function visibleRooms(){ const cap=+$('fCap').value, res=$('fRes').value; return rooms.filter(r=>r.cap>=cap && (!res||r.res.includes(res))); }
+/* ===== SEDES (RF-24 · selección de sede + favorita por defecto) ===== */
+const SEDES=[...new Set(rooms.map(r=>r.sede))];
+const FAV_KEY='sares_fav_sede';
+function loadFav(){ try{ return localStorage.getItem(FAV_KEY); }catch(e){ return null; } }
+function saveFav(v){ try{ localStorage.setItem(FAV_KEY,v); }catch(e){} }
+let favSede = loadFav() || SEDES[0];
+if(favSede!=='*' && !SEDES.includes(favSede)) favSede=SEDES[0];
+let curSede = favSede;
+function sedeLabel(v){ return v==='*' ? 'Todas las sedes' : v; }
+function updateSedeOptions(){
+  const sel=$('fSede');
+  const opts=[['*','Todas las sedes'],...SEDES.map(s=>[s,s])];
+  sel.innerHTML=opts.map(([v,l])=>`<option value="${v}" ${v===curSede?'selected':''}>${v===favSede?'★ ':''}${l}</option>`).join('');
+}
+function updateFavStar(){
+  const b=$('favSedeBtn');
+  const isFav=(curSede===favSede);
+  b.classList.toggle('on',isFav);
+  b.title=isFav?`"${sedeLabel(curSede)}" es tu sede favorita (default)`:`Marcar "${sedeLabel(curSede)}" como sede favorita`;
+}
+function initSede(){
+  updateSedeOptions(); updateFavStar();
+  $('fSede').onchange=()=>{ curSede=$('fSede').value; updateFavStar(); renderGrid(); };
+  $('favSedeBtn').onclick=()=>{ favSede=curSede; saveFav(favSede); updateSedeOptions(); updateFavStar(); toast(`Sede favorita: ${sedeLabel(curSede)}`); };
+}
+function visibleRooms(){ const cap=+$('fCap').value, res=$('fRes').value;
+  return rooms.filter(r=>(curSede==='*'||r.sede===curSede) && r.cap>=cap && (!res||r.res.includes(res))); }
 function resvStartingAt(roomId,i){ if(dayOffset!==0) return null; return reservations.find(r=>r.room===roomId&&r.start===i); }
 function slotCovered(roomId,s){ if(dayOffset!==0) return null; return reservations.find(r=>r.room===roomId && r.start<=s && s<r.start+r.span); }
 function renderGrid(){
