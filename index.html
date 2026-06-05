@@ -75,6 +75,28 @@
   .pk-card h3{font-size:20px;font-weight:600;margin-bottom:8px}
   .pk-card p{color:var(--ink2);font-size:14px;line-height:1.5}
 
+  /* registro + onboarding */
+  .reg-block{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px;border:1px solid var(--line2);border-radius:12px;background:var(--card)}
+  .reg-qr{width:74px;height:74px;flex:0 0 auto;background:#fff;border-radius:8px;padding:4px;display:flex;align-items:center;justify-content:center}
+  .reg-qr svg,.reg-qr img,.reg-qr canvas,.reg-qr table{width:66px !important;height:66px !important}
+  .reg-t{font-weight:600;font-size:14px}
+  .reg-s{font-size:11.5px;color:var(--ink2);margin-top:3px}
+  .ob-overlay{position:fixed;inset:0;background:rgba(20,24,21,.5);backdrop-filter:blur(5px);z-index:85;display:flex;align-items:center;justify-content:center;padding:20px}
+  .ob-card{background:var(--paper);border-radius:18px;width:min(420px,96vw);max-height:92vh;overflow-y:auto;box-shadow:var(--shadow);padding:26px 26px 28px;position:relative}
+  .ob-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:9px;background:var(--paper2);font-size:18px;color:var(--ink)}
+  .ob-close:hover{background:var(--line)}
+  .ob-dots{display:flex;gap:7px;margin-bottom:16px}
+  .od{height:5px;flex:1;border-radius:99px;background:var(--line2)}
+  .od.on{background:var(--accent)}
+  .ob-k{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .ob-card h3{font-size:22px;font-weight:600}
+  .ob-p{font-size:13.5px;color:var(--ink2);line-height:1.55;margin:8px 0 16px}
+  .ob-err{font-size:12.5px;color:var(--clay);font-weight:600;margin-top:7px;min-height:1px}
+  .ob-mail{background:var(--paper2);border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--ink2);margin-bottom:14px;line-height:1.5}
+  .ob-mail b{font-family:'Fraunces';font-size:20px;color:var(--ink);letter-spacing:.12em}
+  .ob-photo{display:flex;align-items:center;gap:14px}
+  .ob-pv{width:56px;height:56px;border-radius:50%;background:var(--paper2);border:1px dashed var(--line2);display:grid;place-items:center;font-size:22px;color:var(--ink2);flex:0 0 auto;background-size:cover;background-position:center}
+
   /* APP */
   #app{max-width:1280px;margin:0 auto;padding:22px clamp(14px,3vw,30px) 90px}
   .topbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:8px}
@@ -322,6 +344,16 @@
       </button>
       <div class="divider">o</div>
       <button class="btn btn-ghost" id="btnPass">Usar contraseña</button>
+
+      <div class="reg-block">
+        <div class="reg-qr" id="regQR"></div>
+        <div>
+          <div class="reg-t">¿Primera vez aquí?</div>
+          <a class="about-link" onclick="openOnboard()">Regístrate con tu correo institucional →</a>
+          <div class="reg-s">o escanea el QR del afiche en tu oficina</div>
+        </div>
+      </div>
+
       <div class="secure-note">
         <b>Mecanismo del prototipo.</b> "Passkey" simula autenticación sin contraseña basada en el dispositivo (huella / rostro / PIN local, estándar <b>WebAuthn/FIDO2</b>): nada reutilizable viaja por la red. En producción se conecta al <b>directorio institucional (SSO/AD)</b> — RNG-06a y RNG-06b.
       </div>
@@ -339,6 +371,53 @@
   </div>
 </div>
 
+<!-- ONBOARDING (registro por correo institucional · RF-25) -->
+<div id="onboard" class="hidden ob-overlay">
+  <div class="ob-card">
+    <button class="ob-close" onclick="closeOnboard()">×</button>
+    <div class="ob-dots"><span class="od on" id="od1"></span><span class="od" id="od2"></span><span class="od" id="od3"></span></div>
+
+    <div class="ob-step" id="ob1">
+      <div class="ob-k">Paso 1 de 3 <span class="rf">RF-25 · RN-08</span></div>
+      <h3>Regístrate con tu correo institucional</h3>
+      <p class="ob-p">Te enviaremos un código de verificación de 6 dígitos a tu correo <b>@entidad.gob.pe</b>.</p>
+      <input id="obEmail" class="input" type="email" placeholder="nombre.apellido@entidad.gob.pe" value="adolfus.ramirez@entidad.gob.pe">
+      <div class="ob-err" id="obEmailErr"></div>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="obSendCode()">Enviar código</button>
+    </div>
+
+    <div class="ob-step hidden" id="ob2">
+      <div class="ob-k">Paso 2 de 3</div>
+      <h3>Ingresa el código</h3>
+      <p class="ob-p">Enviamos un código a <b id="obEmailShown"></b>.</p>
+      <div class="ob-mail" id="obMail"></div>
+      <input id="obCode" class="input" inputmode="numeric" maxlength="6" placeholder="••••••" style="letter-spacing:.5em;text-align:center;font-size:20px">
+      <div class="ob-err" id="obCodeErr"></div>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="obValidate()">Validar código</button>
+      <div style="text-align:center;margin-top:10px"><a class="about-link" onclick="obSendCode()">Reenviar código</a> · <a class="about-link" onclick="obStep(1)">Cambiar correo</a></div>
+    </div>
+
+    <div class="ob-step hidden" id="ob3">
+      <div class="ob-k">Paso 3 de 3</div>
+      <h3>Completa tu perfil</h3>
+      <p class="ob-p">Correo verificado ✓ <span id="obVerified"></span>. Estos datos los traería automáticamente el directorio cuando se integre el SSO.</p>
+      <label class="fld">Nombre completo</label>
+      <input id="obName" class="input" placeholder="Nombre y apellido" value="Adolfus Ramírez">
+      <label class="fld" style="margin-top:12px">Área / Oficina</label>
+      <input id="obArea" class="input" placeholder="Ej. Arquitectura de Soluciones" value="Arquitectura de Soluciones">
+      <label class="fld" style="margin-top:12px">Foto (opcional)</label>
+      <div class="ob-photo">
+        <div class="ob-pv" id="obPv">+</div>
+        <div>
+          <input id="obPhoto" type="file" accept="image/*" onchange="obPhotoPreview()" style="font-size:12.5px">
+          <div class="reg-s">Opcional y con tu consentimiento. Puedes omitirla.</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="obCreate()">Crear cuenta y entrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- APP -->
 <main id="app" class="hidden">
   <div class="topbar">
@@ -350,8 +429,8 @@
     <a class="trace-toggle" href="docs.html" style="text-decoration:none;color:var(--ink2)">📄 Documentación</a>
     <button class="trace-toggle" id="traceBtn">Modo trazabilidad <span class="switch" id="traceSwitch"></span></button>
     <div class="userchip">
-      <div class="av">AR</div>
-      <div><div class="un">Adolfus Ramírez</div><div class="ur">Arquitectura de Soluciones</div></div>
+      <div class="av" id="ucAv">AR</div>
+      <div><div class="un" id="ucName">Adolfus Ramírez</div><div class="ur" id="ucArea">Arquitectura de Soluciones</div></div>
       <span class="logout" id="logout">Salir</span>
     </div>
   </div>
@@ -456,7 +535,58 @@ let reservations = [
 let nextId=100, dayOffset=0;
 
 /* ===== LOGIN ===== */
-function doLogin(){ $('passkey').classList.add('hidden'); $('login').classList.add('hidden'); $('app').classList.remove('hidden'); initSede(); renderDate(); renderGrid(); }
+function paintUser(){
+  currentUser.initials = (currentUser.name.trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2)||'··').toUpperCase();
+  $('ucName').textContent=currentUser.name; $('ucArea').textContent=currentUser.area;
+  const av=$('ucAv');
+  if(currentUser.photo){ av.style.backgroundImage=`url(${currentUser.photo})`; av.style.backgroundSize='cover'; av.style.backgroundPosition='center'; av.textContent=''; }
+  else { av.style.backgroundImage=''; av.textContent=currentUser.initials; }
+}
+function enterApp(){ $('login').classList.add('hidden'); $('passkey').classList.add('hidden'); $('onboard').classList.add('hidden'); $('app').classList.remove('hidden'); paintUser(); initSede(); renderDate(); renderGrid(); }
+function doLogin(){ $('passkey').classList.add('hidden'); enterApp(); }
+
+/* ===== ONBOARDING por correo institucional (RF-25 · RN-08) ===== */
+const DOMAIN='@entidad.gob.pe';
+let ob={email:'',code:'',photo:null};
+function openOnboard(){ obStep(1); $('onboard').classList.remove('hidden'); }
+function closeOnboard(){ $('onboard').classList.add('hidden'); }
+function obStep(n){
+  [1,2,3].forEach(i=>{ $('ob'+i).classList.toggle('hidden',i!==n); $('od'+i).classList.toggle('on',i<=n); });
+}
+function obSendCode(){
+  const email=$('obEmail').value.trim().toLowerCase();
+  const err=$('obEmailErr');
+  if(!email || email.indexOf('@')<1){ err.textContent='Ingresa un correo válido.'; return; }
+  if(!email.endsWith(DOMAIN)){ err.textContent=`Debe ser un correo institucional (${DOMAIN}).`; return; }
+  err.textContent='';
+  ob.email=email;
+  ob.code=String(Math.floor(100000+Math.random()*900000));
+  $('obEmailShown').textContent=email;
+  $('obMail').innerHTML=`📧 <b>Correo recibido (simulado)</b><br>Asunto: Tu código de acceso SARES<br>Tu código es: <b>${ob.code}</b><br><span style="opacity:.8">En producción este código llega a tu bandeja institucional; aquí se muestra solo para la demo.</span>`;
+  $('obCode').value=''; $('obCodeErr').textContent='';
+  obStep(2);
+}
+function obValidate(){
+  const v=$('obCode').value.trim();
+  const err=$('obCodeErr');
+  if(v!==ob.code){ err.textContent='Código incorrecto. Revisa e inténtalo de nuevo.'; return; }
+  err.textContent='';
+  $('obVerified').textContent='('+ob.email+')';
+  obStep(3);
+}
+function obPhotoPreview(){
+  const f=$('obPhoto').files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ ob.photo=e.target.result; const pv=$('obPv'); pv.style.backgroundImage=`url(${ob.photo})`; pv.textContent=''; };
+  r.readAsDataURL(f);
+}
+function obCreate(){
+  const name=$('obName').value.trim()||'Usuario';
+  const area=$('obArea').value.trim()||'—';
+  currentUser.name=name; currentUser.area=area; currentUser.email=ob.email; currentUser.photo=ob.photo||null;
+  closeOnboard(); enterApp();
+  toast('Cuenta creada y correo verificado ✓');
+}
 $('btnPasskey').onclick = () => { $('passkey').classList.remove('hidden'); setTimeout(doLogin,1700); };
 $('btnPass').onclick = () => doLogin();
 
@@ -924,6 +1054,9 @@ $('agentSend').onclick=()=>sendAgent($('agentInput').value);
 $('agentInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendAgent($('agentInput').value);});
 $('agentSugs').innerHTML=Object.keys(agentScript).map(s=>`<button class="sug">${s}</button>`).join('');
 $('agentSugs').querySelectorAll('.sug').forEach(b=>b.onclick=()=>sendAgent(b.textContent));
+
+/* QR del afiche de registro (login) */
+try{ qrRender($('regQR'),'https://magobohemio.github.io/prototipo-reservasala/?registro=1'); }catch(e){}
 </script>
 </body>
 </html>
