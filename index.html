@@ -6,37 +6,37 @@
 <title>SARES · Prototipo de Reserva de Salas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
-    --paper:#F3EFE6; --paper2:#EAE5D8; --card:#FBFAF5; --ink:#191E1B; --ink2:#5C625B;
-    --line:#D9D3C4; --line2:#C8C1AE;
-    --accent:#0E6B5C; --accent-d:#0A5247; --accent-soft:#DBEDE7;
-    --clay:#B0432F; --clay-soft:#F1DDD6;
-    --amber:#B8761B; --amber-soft:#F3E6CC;
-    --shadow:0 1px 2px rgba(25,30,27,.05), 0 8px 30px -12px rgba(25,30,27,.18);
+    --paper:#EEF2F7; --paper2:#E3EAF4; --card:#FFFFFF; --ink:#1E293B; --ink2:#64748B;
+    --line:#E2E8F0; --line2:#CBD5E1;
+    --navy:#1B3A6B;
+    --accent:#2563EB; --accent-d:#1D4ED8; --accent-soft:#E0EAFB;
+    --clay:#CE1B41; --clay-soft:#FCE3E9;
+    --amber:#B45309; --amber-soft:#FEF1DD;
+    --shadow:0 1px 2px rgba(15,23,42,.06), 0 10px 30px -14px rgba(15,23,42,.22);
     --radius:14px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   button{font-family:inherit;cursor:pointer;border:none;background:none}
   body{
-    font-family:'Spline Sans',system-ui,sans-serif;color:var(--ink);
+    font-family:'Open Sans',system-ui,sans-serif;color:var(--ink);
     background:
-      radial-gradient(1200px 500px at 90% -10%, #fff7e8 0%, transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, #e3efe9 0%, transparent 55%),
+      radial-gradient(1000px 480px at 100% -12%, #e6eefb 0%, transparent 58%),
       var(--paper);
     min-height:100%;-webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3{font-family:'Fraunces',serif}
+  h1,h2,h3{font-family:'Montserrat',sans-serif}
   .hidden{display:none !important}
 
   /* LOGIN */
   #login{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr}
   @media(max-width:860px){#login{grid-template-columns:1fr}}
-  .login-art{position:relative;overflow:hidden;color:#F3EFE6;
-    background:linear-gradient(150deg,#0A5247 0%,#0E6B5C 45%,#137a63 100%);
+  .login-art{position:relative;overflow:hidden;color:#eef3fc;
+    background:linear-gradient(155deg,#15305c 0%,#1B3A6B 55%,#27508f 100%);
     padding:54px 48px;display:flex;flex-direction:column;justify-content:space-between}
   @media(max-width:860px){.login-art{display:none}}
   .login-art::after{content:"";position:absolute;inset:0;
@@ -93,7 +93,7 @@
   .ob-p{font-size:13.5px;color:var(--ink2);line-height:1.55;margin:8px 0 16px}
   .ob-err{font-size:12.5px;color:var(--clay);font-weight:600;margin-top:7px;min-height:1px}
   .ob-mail{background:var(--paper2);border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--ink2);margin-bottom:14px;line-height:1.5}
-  .ob-mail b{font-family:'Fraunces';font-size:20px;color:var(--ink);letter-spacing:.12em}
+  .ob-mail b{font-family:'Montserrat';font-size:20px;color:var(--ink);letter-spacing:.12em}
   .ob-photo{display:flex;align-items:center;gap:14px}
   .ob-pv{width:56px;height:56px;border-radius:50%;background:var(--paper2);border:1px dashed var(--line2);display:grid;place-items:center;font-size:22px;color:var(--ink2);flex:0 0 auto;background-size:cover;background-position:center}
 
@@ -101,8 +101,8 @@
   #app{max-width:1280px;margin:0 auto;padding:22px clamp(14px,3vw,30px) 90px}
   .topbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:8px}
   .brand{display:flex;align-items:center;gap:12px}
-  .brand .mark{width:40px;height:40px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:'Fraunces';font-weight:600;font-size:20px;box-shadow:var(--shadow)}
-  .brand .nm{font-family:'Fraunces';font-weight:600;font-size:21px;line-height:1}
+  .brand .mark{width:40px;height:40px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:'Montserrat';font-weight:600;font-size:20px;box-shadow:var(--shadow)}
+  .brand .nm{font-family:'Montserrat';font-weight:600;font-size:21px;line-height:1}
   .brand .tg{font-size:12px;color:var(--ink2);margin-top:2px}
   .spacer{flex:1}
   .trace-toggle{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2);font-weight:500;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px 7px 14px}
@@ -163,7 +163,7 @@
   .resv .rtm{font-size:10px;opacity:.85;margin-top:2px}
   .resv .ro{font-size:10px;opacity:.8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  .rf{display:none;font-family:'Spline Sans';font-size:10px;font-weight:700;letter-spacing:.03em;background:#191E1B;color:#E7C66B;padding:2px 7px;border-radius:6px;vertical-align:middle}
+  .rf{display:none;font-family:'Open Sans';font-size:10px;font-weight:700;letter-spacing:.03em;background:#191E1B;color:#E7C66B;padding:2px 7px;border-radius:6px;vertical-align:middle}
   body.trace .rf{display:inline-block}
   body.trace [data-rfedge]{outline:2px dashed rgba(184,118,27,.55);outline-offset:3px;border-radius:8px}
   .rf-float{position:absolute;top:-9px;left:14px;display:none}
@@ -222,7 +222,7 @@
   .detail-row .dk{width:120px;color:var(--ink2);flex:0 0 auto;font-size:13px}
   .restricted{text-align:center;padding:30px 20px;color:var(--ink2)}
   .restricted .lk{font-size:34px}
-  .restricted h4{font-family:'Fraunces';font-size:19px;color:var(--ink);margin:12px 0 6px}
+  .restricted h4{font-family:'Montserrat';font-size:19px;color:var(--ink);margin:12px 0 6px}
   .restricted p{font-size:13.5px;line-height:1.55;max-width:30ch;margin:0 auto}
   .confirm-wrap{text-align:center;padding:12px 6px}
   .check{width:74px;height:74px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;margin:0 auto 16px;animation:pop .4s cubic-bezier(.2,1.3,.5,1)}
@@ -262,8 +262,8 @@
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(231,198,107,.6)}70%{box-shadow:0 0 0 9px rgba(231,198,107,0)}100%{box-shadow:0 0 0 0 rgba(231,198,107,0)}}
   .agent-panel{position:fixed;bottom:80px;right:22px;width:min(360px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);z-index:56;overflow:hidden;display:none;flex-direction:column;max-height:74vh}
   .agent-panel.show{display:flex}
-  .agent-head{padding:16px 18px;background:linear-gradient(135deg,#0A5247,#137a63);color:#fff}
-  .agent-head .at{font-family:'Fraunces';font-weight:600;font-size:17px}
+  .agent-head{padding:16px 18px;background:linear-gradient(135deg,#1B3A6B,#2D5BA8);color:#fff}
+  .agent-head .at{font-family:'Montserrat';font-weight:600;font-size:17px}
   .agent-head .as{font-size:12px;opacity:.85;margin-top:2px}
   .agent-head .ph3{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:700;background:rgba(255,255,255,.18);padding:3px 9px;border-radius:6px;letter-spacing:.04em}
   .agent-msgs{padding:16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
@@ -295,7 +295,7 @@
   .toast.show{opacity:1;transform:translate(-50%,0)}
   .door-sign{display:inline-block;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:16px 24px}
   .ds-top{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink2);text-transform:uppercase}
-  .ds-room{font-family:'Fraunces';font-size:20px;font-weight:600;margin-top:6px}
+  .ds-room{font-family:'Montserrat';font-size:20px;font-weight:600;margin-top:6px}
   .ds-sub{font-size:12px;color:var(--ink2)}
   .about-link{color:inherit;text-decoration:underline;cursor:pointer;font-weight:600;opacity:.95}
   .about-link:hover{color:var(--accent)}
@@ -309,6 +309,18 @@
   .team-name{font-weight:600;font-size:14px}
   .team-role{font-size:11.5px;color:var(--ink2);margin-top:2px}
   .about-foot{font-size:12.5px;color:var(--ink2);margin-top:18px;line-height:1.55;text-align:center;border-top:1px solid var(--line);padding-top:14px}
+  /* SIAF · cabecera navy de la app */
+  .topbar{background:var(--navy);color:#fff;padding:13px 18px;border-radius:12px;box-shadow:var(--shadow);margin-bottom:10px}
+  .topbar .brand .nm{color:#fff}
+  .topbar .brand .tg{color:rgba(255,255,255,.72)}
+  .topbar .brand .mark{background:#fff;color:var(--navy)}
+  .topbar .trace-toggle{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);color:#fff}
+  .topbar .trace-toggle:hover{background:rgba(255,255,255,.2)}
+  .topbar .switch{background:rgba(255,255,255,.35)}
+  .topbar .userchip{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28)}
+  .topbar .userchip .un{color:#fff}
+  .topbar .userchip .ur{color:rgba(255,255,255,.72)}
+  .topbar .logout{color:rgba(255,255,255,.85)}
 </style>
 </head>
 <body>
@@ -895,14 +907,14 @@ function roomPhotoSVG(room){
   let chairs='';
   for(let i=0;i<n;i++){ const a=(i/n)*Math.PI*2-Math.PI/2; const x=(cx+Math.cos(a)*(rx+22)).toFixed(0); const y=(cy+Math.sin(a)*(ry+18)).toFixed(0); chairs+=`<circle cx="${x}" cy="${y}" r="8" fill="#A88D63"/>`; }
   return `<svg viewBox="0 0 370 205" xmlns="http://www.w3.org/2000/svg">
-    <rect width="370" height="205" rx="12" fill="#ECE6D6"/>
-    <rect y="120" width="370" height="85" fill="#DDD3BC"/>
+    <rect width="370" height="205" rx="12" fill="#E8EDF4"/>
+    <rect y="120" width="370" height="85" fill="#D7DEEA"/>
     <rect x="22" y="28" width="78" height="54" rx="4" fill="#BFE0EA" stroke="#fff" stroke-width="3"/>
     <line x1="61" y1="28" x2="61" y2="82" stroke="#fff" stroke-width="3"/>
     ${screen?'<rect x="150" y="22" width="120" height="62" rx="5" fill="#1f2a28"/><rect x="158" y="30" width="104" height="46" rx="3" fill="#3a6f63"/>':''}
-    ${board?'<rect x="286" y="36" width="62" height="48" rx="4" fill="#fff" stroke="#cfc7b2"/><line x1="296" y1="50" x2="338" y2="50" stroke="#ccc" stroke-width="2"/><line x1="296" y1="60" x2="326" y2="60" stroke="#ccc" stroke-width="2"/>':''}
-    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#0E6B5C"/>
-    <ellipse cx="${cx}" cy="${cy-4}" rx="${rx}" ry="${ry}" fill="#137a63"/>
+    ${board?'<rect x="286" y="36" width="62" height="48" rx="4" fill="#fff" stroke="#d5dbe6"/><line x1="296" y1="50" x2="338" y2="50" stroke="#ccc" stroke-width="2"/><line x1="296" y1="60" x2="326" y2="60" stroke="#ccc" stroke-width="2"/>':''}
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#2563EB"/>
+    <ellipse cx="${cx}" cy="${cy-4}" rx="${rx}" ry="${ry}" fill="#2D5BA8"/>
     ${chairs}
   </svg>
   <div class="plan-label">${room.cap} personas · ${room.res.join(' · ')}</div>`;
@@ -923,39 +935,39 @@ function floorPlanSVG(room){
   cells.forEach((c,i)=>{
     const col=Math.floor(i/2), top=(i%2===0);
     const x=startX+col*colW, y=top?topY:botY, hl=c.id===room.id;
-    const fill=hl?'#0E6B5C':(c.id?'#EDE7D8':'#E7E1D1');
+    const fill=hl?'#2563EB':(c.id?'#E8EDF4':'#EDF1F7');
     const tcol=hl?'#fff':'#191E1B';
     const doorX=x+roomW/2, doorY=top?(y+roomH):y;
     if(hl) target={doorX,doorY,top};
     g+=`<g>
-      <rect x="${x}" y="${y}" width="${roomW}" height="${roomH}" rx="8" fill="${fill}" stroke="#C8C1AE"/>
-      <text x="${x+roomW/2}" y="${y+roomH/2-1}" text-anchor="middle" font-size="${c.id?12.5:11}" font-weight="600" font-family="Spline Sans" fill="${tcol}">${c.name}</text>
-      ${c.id?`<text x="${x+roomW/2}" y="${y+roomH/2+15}" text-anchor="middle" font-size="9.5" font-family="Spline Sans" fill="${hl?'rgba(255,255,255,.85)':'#5C625B'}">${hl?'tu sala':c.loc}</text>`:''}
+      <rect x="${x}" y="${y}" width="${roomW}" height="${roomH}" rx="8" fill="${fill}" stroke="#CBD5E1"/>
+      <text x="${x+roomW/2}" y="${y+roomH/2-1}" text-anchor="middle" font-size="${c.id?12.5:11}" font-weight="600" font-family="Open Sans" fill="${tcol}">${c.name}</text>
+      ${c.id?`<text x="${x+roomW/2}" y="${y+roomH/2+15}" text-anchor="middle" font-size="9.5" font-family="Open Sans" fill="${hl?'rgba(255,255,255,.85)':'#5C625B'}">${hl?'tu sala':c.loc}</text>`:''}
       <rect x="${doorX-9}" y="${doorY-2}" width="18" height="4" fill="${fill}"/>
-      <path d="M ${doorX-9} ${doorY} A 17 17 0 0 ${top?0:1} ${doorX-9} ${top?doorY-17:doorY+17}" fill="none" stroke="#b3aa92" stroke-width="1.4"/>
+      <path d="M ${doorX-9} ${doorY} A 17 17 0 0 ${top?0:1} ${doorX-9} ${top?doorY-17:doorY+17}" fill="none" stroke="#b9c2d1" stroke-width="1.4"/>
     </g>`;
   });
   let route='';
   if(target){
     const ax=accessW, tx=target.doorX, dy=target.doorY;
     const baseY=target.top?dy+10:dy-10;
-    route=`<polyline points="${ax},${corrY} ${tx},${corrY} ${tx},${dy}" fill="none" stroke="#B8761B" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>
-      <polygon points="${tx-5},${baseY} ${tx+5},${baseY} ${tx},${dy}" fill="#B8761B"/>`;
+    route=`<polyline points="${ax},${corrY} ${tx},${corrY} ${tx},${dy}" fill="none" stroke="#B45309" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>
+      <polygon points="${tx-5},${baseY} ${tx+5},${baseY} ${tx},${dy}" fill="#B45309"/>`;
   }
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${W}" height="${H}" rx="12" fill="#F3EFE6" stroke="#D9D3C4"/>
-    <text x="16" y="26" font-size="13" font-weight="700" font-family="Spline Sans" fill="#191E1B">${room.sede} — ${room.floor}</text>
-    <text x="16" y="42" font-size="10.5" font-family="Spline Sans" fill="#8a8169">Ruta desde los ascensores hasta tu sala</text>
-    <rect x="${accessW}" y="${corrTop}" width="${W-accessW-12}" height="${corrH}" fill="#E3DCC9"/>
-    <text x="${(W+accessW)/2}" y="${corrY+4}" text-anchor="middle" font-size="10.5" font-family="Spline Sans" fill="#9a9079">pasillo</text>
-    <rect x="12" y="${topY}" width="${accessW-16}" height="${H-topY-22}" rx="8" fill="#D7CFBA" stroke="#C8C1AE"/>
+    <rect width="${W}" height="${H}" rx="12" fill="#EEF2F7" stroke="#E2E8F0"/>
+    <text x="16" y="26" font-size="13" font-weight="700" font-family="Open Sans" fill="#191E1B">${room.sede} — ${room.floor}</text>
+    <text x="16" y="42" font-size="10.5" font-family="Open Sans" fill="#8a93a3">Ruta desde los ascensores hasta tu sala</text>
+    <rect x="${accessW}" y="${corrTop}" width="${W-accessW-12}" height="${corrH}" fill="#DFE6F0"/>
+    <text x="${(W+accessW)/2}" y="${corrY+4}" text-anchor="middle" font-size="10.5" font-family="Open Sans" fill="#8a93a3">pasillo</text>
+    <rect x="12" y="${topY}" width="${accessW-16}" height="${H-topY-22}" rx="8" fill="#CFD9E8" stroke="#CBD5E1"/>
     <rect x="22" y="${corrY-28}" width="${accessW-36}" height="24" rx="3" fill="#fbfaf5" stroke="#c8c1ae"/>
     <rect x="22" y="${corrY+6}" width="${accessW-36}" height="24" rx="3" fill="#fbfaf5" stroke="#c8c1ae"/>
-    <text x="${(accessW+6)/2}" y="${topY+22}" text-anchor="middle" font-size="10" font-weight="600" font-family="Spline Sans" fill="#5C625B">Acceso</text>
-    <text x="${(accessW+6)/2}" y="${H-32}" text-anchor="middle" font-size="9.5" font-family="Spline Sans" fill="#5C625B">ascensores</text>
+    <text x="${(accessW+6)/2}" y="${topY+22}" text-anchor="middle" font-size="10" font-weight="600" font-family="Open Sans" fill="#5C625B">Acceso</text>
+    <text x="${(accessW+6)/2}" y="${H-32}" text-anchor="middle" font-size="9.5" font-family="Open Sans" fill="#5C625B">ascensores</text>
     ${route}
-    <circle cx="${accessW}" cy="${corrY}" r="7" fill="#B0432F"/><circle cx="${accessW}" cy="${corrY}" r="3" fill="#fff"/>
-    <text x="${accessW+6}" y="${corrY-13}" font-size="10" font-weight="700" font-family="Spline Sans" fill="#B0432F">estás aquí</text>
+    <circle cx="${accessW}" cy="${corrY}" r="7" fill="#CE1B41"/><circle cx="${accessW}" cy="${corrY}" r="3" fill="#fff"/>
+    <text x="${accessW+6}" y="${corrY-13}" font-size="10" font-weight="700" font-family="Open Sans" fill="#CE1B41">estás aquí</text>
     ${g}
   </svg>
   <div class="plan-label">🚪 puerta (con su giro) · ▦ ascensores · línea punteada ámbar = ruta sugerida</div>`;
@@ -1003,28 +1015,28 @@ function teamPhotoSVG(){
   const xs=[95,175,255,335,415];
   xs.forEach((x,i)=>{ const t=tones[i%tones.length];
     people+=`<g>
-      <path d="M ${x-34} 250 q 0 -56 34 -56 q 34 0 34 56 Z" fill="${['#0E6B5C','#137a63','#B8761B','#0A5247','#9a6516'][i%5]}"/>
+      <path d="M ${x-34} 250 q 0 -56 34 -56 q 34 0 34 56 Z" fill="${['#2563EB','#2D5BA8','#B45309','#1B3A6B','#9a6516'][i%5]}"/>
       <circle cx="${x}" cy="168" r="26" fill="${t}"/>
       <path d="M ${x-26} 162 q 26 -34 52 0 q 0 -26 -26 -26 q -26 0 -26 26 Z" fill="#2b2b2b"/>
     </g>`;
   });
   return `<svg viewBox="0 0 510 250" xmlns="http://www.w3.org/2000/svg" style="display:block">
-    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E3EFE9"/><stop offset="1" stop-color="#F3EFE6"/></linearGradient></defs>
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAF0FB"/><stop offset="1" stop-color="#EEF2F7"/></linearGradient></defs>
     <rect width="510" height="250" fill="url(#sky)"/>
-    <circle cx="430" cy="55" r="120" fill="#DBEDE7" opacity="0.6"/>
-    <rect x="40" y="60" width="80" height="60" rx="6" fill="#EDE7D8" stroke="#D9D3C4"/>
+    <circle cx="430" cy="55" r="120" fill="#E0EAFB" opacity="0.6"/>
+    <rect x="40" y="60" width="80" height="60" rx="6" fill="#E8EDF4" stroke="#E2E8F0"/>
     <rect x="46" y="66" width="68" height="40" rx="3" fill="#BFE0EA"/>
     ${people}
-    <rect x="0" y="248" width="510" height="2" fill="#D9D3C4"/>
+    <rect x="0" y="248" width="510" height="2" fill="#E2E8F0"/>
   </svg>`;
 }
 function openAbout(){
   const team=[
-    {n:'Adolfus Ramírez', r:'Arquitecto de Soluciones', c:'#0E6B5C'},
-    {n:'[Nombre]', r:'Líder de Proyecto', c:'#B8761B'},
-    {n:'[Nombre]', r:'Desarrollo Full-Stack', c:'#137a63'},
+    {n:'Adolfus Ramírez', r:'Arquitecto de Soluciones', c:'#2563EB'},
+    {n:'[Nombre]', r:'Líder de Proyecto', c:'#B45309'},
+    {n:'[Nombre]', r:'Desarrollo Full-Stack', c:'#2D5BA8'},
     {n:'[Nombre]', r:'Diseño UX/UI', c:'#9a6516'},
-    {n:'[Nombre]', r:'Calidad / QA', c:'#B0432F'},
+    {n:'[Nombre]', r:'Calidad / QA', c:'#CE1B41'},
   ];
   const cards=team.map(m=>{ const ini=m.n.replace(/[\[\]]/g,'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'••';
     return `<div class="team-card"><div class="team-av" style="background:${m.c}">${ini}</div><div class="team-name">${m.n}</div><div class="team-role">${m.r}</div></div>`; }).join('');
