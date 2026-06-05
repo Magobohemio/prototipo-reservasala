@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SARES · Documentación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EFE6; --paper2:#EAE5D8; --card:#FBFAF5; --ink:#191E1B; --ink2:#5C625B;
+    --line:#D9D3C4; --line2:#C8C1AE; --accent:#0E6B5C; --accent-d:#0A5247; --accent-soft:#DBEDE7;
+    --clay:#B0432F; --clay-soft:#F1DDD6; --amber:#B8761B; --amber-soft:#F3E6CC;
+    --shadow:0 1px 2px rgba(25,30,27,.05), 0 8px 30px -12px rgba(25,30,27,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Spline Sans',system-ui,sans-serif;color:var(--ink);background:
+    radial-gradient(1200px 500px at 90% -10%, #fff7e8 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #e3efe9 0%, transparent 55%), var(--paper);
+    -webkit-font-smoothing:antialiased;line-height:1.6}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600}
+  a{color:var(--accent)}
+  /* topbar */
+  .top{position:sticky;top:0;z-index:20;background:rgba(243,239,230,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .top-in{max-width:1180px;margin:0 auto;padding:14px clamp(14px,3vw,28px);display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .mark{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:'Fraunces';font-weight:600;font-size:18px}
+  .brand .nm{font-family:'Fraunces';font-weight:600;font-size:18px;line-height:1}
+  .brand .tg{font-size:11.5px;color:var(--ink2)}
+  .spacer{flex:1}
+  .back{font-size:13.5px;font-weight:600;text-decoration:none;border:1px solid var(--line2);background:var(--card);padding:9px 14px;border-radius:9px;color:var(--ink)}
+  .back:hover{background:var(--accent-soft);border-color:var(--accent)}
+  /* layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:28px clamp(14px,3vw,28px) 80px;display:grid;grid-template-columns:230px 1fr;gap:34px}
+  @media(max-width:820px){.wrap{grid-template-columns:1fr}.toc{display:none}}
+  .toc{position:sticky;top:84px;align-self:start;font-size:13.5px}
+  .toc .tl{font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink2);font-weight:700;margin-bottom:10px}
+  .toc a{display:block;padding:6px 10px;border-radius:7px;color:var(--ink2);text-decoration:none;border-left:2px solid transparent}
+  .toc a:hover{background:var(--card);color:var(--ink)}
+  .content{min-width:0}
+  .hero h1{font-size:clamp(30px,4vw,42px);line-height:1.05}
+  .hero .lead{font-size:16px;color:var(--ink2);margin-top:12px;max-width:62ch}
+  /* version block */
+  .verbox{margin:24px 0 8px;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+  .verbox .vh{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#0A5247,#137a63);color:#fff}
+  .verbox .vbadge{font-size:12px;font-weight:700;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:7px;letter-spacing:.03em}
+  .verbox .vh .vt{font-family:'Fraunces';font-size:17px;font-weight:600}
+  .verbox .vb{padding:14px 18px}
+  .chg{display:flex;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .chg:last-child{border-bottom:none}
+  .chg .ct{font-weight:700;color:var(--accent);flex:0 0 92px}
+  section{margin-top:40px;scroll-margin-top:84px}
+  section>h2{font-size:24px;display:flex;align-items:center;gap:10px}
+  section>h2::before{content:"";width:9px;height:22px;background:var(--accent);border-radius:3px;display:inline-block}
+  section p{margin-top:12px;max-width:70ch}
+  section h3{font-size:16px;margin-top:20px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+  .ucard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .ucard .uh{font-weight:700;font-size:14px;color:var(--accent-d);margin-bottom:6px}
+  .ucard ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink2)}
+  .ucard li{margin:4px 0}
+  .feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+  .fitem{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 15px;font-size:13.5px}
+  .fitem b{display:block;font-size:14px;margin-bottom:3px}
+  .fitem span{color:var(--ink2)}
+  table{border-collapse:collapse;width:100%;margin-top:16px;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{background:var(--paper2);font-size:12.5px;color:var(--ink2);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  .pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+  .p-alta{background:var(--clay-soft);color:var(--clay)}
+  .p-media{background:var(--amber-soft);color:var(--amber)}
+  .p-baja{background:var(--accent-soft);color:var(--accent-d)}
+  .fase{font-size:11px;color:var(--ink2)}
+  .rn{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px}
+  .rn:last-child{border-bottom:none}
+  .rn .rid{font-weight:700;color:var(--accent);flex:0 0 66px}
+  .phase{border-left:3px solid var(--accent);padding:4px 0 4px 16px;margin-top:14px}
+  .phase b{font-size:14.5px}
+  .phase span{color:var(--ink2);font-size:13.5px}
+  .note{margin-top:18px;background:var(--amber-soft);border:1px solid #e8d3a8;border-radius:11px;padding:13px 16px;font-size:13.5px;color:#6b4e16}
+  footer{max-width:1180px;margin:0 auto;padding:24px clamp(14px,3vw,28px) 60px;color:var(--ink2);font-size:13px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in">
+  <div class="brand"><div class="mark">S</div><div><div class="nm">SARES · Documentación</div><div class="tg">Sistema de Reservas de Salas</div></div></div>
+  <div class="spacer"></div>
+  <a class="back" href="index.html">← Volver al sistema</a>
+</div></div>
+
+<div class="wrap">
+  <nav class="toc">
+    <div class="tl">Contenido</div>
+    <a href="#resumen">Resumen</a>
+    <a href="#caso">Caso de negocio</a>
+    <a href="#func">Funcionalidades y ventajas</a>
+    <a href="#rf">Requerimientos funcionales</a>
+    <a href="#matriz">Matriz de trazabilidad</a>
+    <a href="#reglas">Reglas de negocio</a>
+    <a href="#fases">Fases</a>
+    <a href="#versionado">Versionado</a>
+  </nav>
+
+  <main class="content">
+    <div class="hero" id="resumen">
+      <h1>Documentación del Sistema de Reservas de Salas</h1>
+      <p class="lead">Espacio vivo y versionado donde se consulta el caso de negocio, los requerimientos funcionales y su trazabilidad. Esta es una versión <b>ilustrativa y pública</b> para consulta y demostración; la documentación institucional completa se mantiene en el repositorio interno de la entidad.</p>
+    </div>
+
+    <div class="verbox">
+      <div class="vh"><span class="vbadge">v1.0-docs</span><div class="vt">Línea base de documentación</div></div>
+      <div class="vb">
+        <div class="chg"><span class="ct">v1.0-docs</span><span>Primera publicación: caso de negocio, RF-01 a RF-24, matriz de trazabilidad, reglas RN-01 a RN-07 y fases.</span></div>
+        <div class="chg"><span class="ct">Prototipo 1.3</span><span>Selección de sede con sede favorita por defecto (RF-24).</span></div>
+        <div class="chg"><span class="ct">Prototipo 1.2</span><span>Recursos compartidos con custodio, foto/plano con ruta, sala libre ahora, check-in por QR fijo de puerta, exportación a calendario.</span></div>
+        <div class="chg"><span class="ct">Prototipo 1.1</span><span>Re-priorización a Fase 1/2/3 y desdoblamiento de seguridad (RNG-06a / 06b).</span></div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--ink2);margin-top:8px">Cada cambio queda registrado como un <i>commit</i> en Git (historial y diferencias); las líneas base se congelan con <i>tags</i> como <code>v1.0-docs</code>.</p>
+
+    <section id="caso">
+      <h2>Caso de negocio</h2>
+      <p>La asignación de salas se gestiona hoy de forma manual (correo y hojas de cálculo), lo que genera conflictos por doble reserva, falta de visibilidad de la disponibilidad real, carga administrativa de coordinación y ausencia de datos consolidados de uso.</p>
+      <p>SARES centraliza la reserva en una aplicación web simple y accesible: consultar disponibilidad en tiempo real, reservar evitando solapamientos, coordinar recursos y notificar a los participantes, dejando además trazabilidad y datos para la planificación de espacios.</p>
+      <h3>Beneficios por tipo de usuario</h3>
+      <div class="cards">
+        <div class="ucard"><div class="uh">Usuario solicitante</div><ul><li>Encuentra y reserva sala en segundos</li><li>Cero choques de horario</li><li>Llega y confirma con el QR de la puerta</li><li>Orientación con plano y ruta</li></ul></div>
+        <div class="ucard"><div class="uh">Administrador de salas</div><ul><li>Catálogo y recursos siempre al día</li><li>Control de salas restringidas</li><li>Menos coordinación manual</li></ul></div>
+        <div class="ucard"><div class="uh">OGTI / Dirección</div><ul><li>Datos de ocupación y demanda</li><li>Reduce el "no-show" con autoliberación</li><li>Base para decisiones de espacios</li></ul></div>
+        <div class="ucard"><div class="uh">La entidad</div><ul><li>Mejor aprovechamiento de espacios</li><li>Privacidad por defecto (protección de datos)</li><li>Experiencia moderna y accesible</li></ul></div>
+      </div>
+    </section>
+
+    <section id="func">
+      <h2>Funcionalidades, ventajas y opciones</h2>
+      <div class="feat">
+        <div class="fitem"><b>Disponibilidad en calendario</b><span>Grilla por sala y horario, en bloques de 30 minutos.</span></div>
+        <div class="fitem"><b>Reserva con validaciones</b><span>Bloqueo de solapamiento y control de capacidad automáticos.</span></div>
+        <div class="fitem"><b>Participantes y alertas</b><span>Lista nominal de invitados y notificación a cada uno.</span></div>
+        <div class="fitem"><b>Recursos compartidos</b><span>Proyectores/equipos móviles con agenda propia y custodio a quién pedirlos.</span></div>
+        <div class="fitem"><b>Privacidad por defecto</b><span>Las reservas privadas no exponen propósito ni participantes a terceros.</span></div>
+        <div class="fitem"><b>Multi-sede + sede favorita</b><span>Cambia de sede y fija una por defecto que se recuerda.</span></div>
+        <div class="fitem"><b>Plano con ruta</b><span>Foto de la sala y planta del piso con la puerta y el camino desde el acceso.</span></div>
+        <div class="fitem"><b>Sala libre ahora</b><span>Encuentra y reserva en un clic la primera sala disponible.</span></div>
+        <div class="fitem"><b>Check-in por QR fijo</b><span>QR pegado en la puerta; autoliberación si no hay ingreso a tiempo.</span></div>
+        <div class="fitem"><b>Calendario (.ics)</b><span>Exporta la reserva a Outlook/Google/Apple.</span></div>
+        <div class="fitem"><b>Acceso seguro</b><span>Identificación con passkey/SSO contra el directorio institucional.</span></div>
+        <div class="fitem"><b>Asistente conversacional</b><span>Reservar hablando, como evolución futura (Fase 3).</span></div>
+      </div>
+    </section>
+
+    <section id="rf">
+      <h2>Requerimientos funcionales</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Requerimiento</th><th>Prioridad</th><th>Fase</th></tr></thead>
+        <tbody>
+          <tr><td>RF-01</td><td>Gestionar el catálogo de salas y recursos</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-02</td><td>Consultar disponibilidad en calendario</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-03</td><td>Registrar reservas (solicitante, propósito, asistentes, recursos)</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-04</td><td>Validar y bloquear solapamiento de horarios</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-05</td><td>Modificar y cancelar reservas según permisos</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-06</td><td>Reservas recurrentes</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-07</td><td>Notificaciones automáticas (confirmación, cambio, recordatorio)</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1 ampliada</td></tr>
+          <tr><td>RF-08</td><td>Flujo de aprobación para salas restringidas</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-09</td><td>Autenticar e integrar con el directorio institucional</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1 / 2</td></tr>
+          <tr><td>RF-10</td><td>Administrar roles y permisos</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-11</td><td>Reportes de uso y ocupación (exportables)</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-12</td><td>Validar que los asistentes no excedan la capacidad</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-13</td><td>Liberar automáticamente reservas sin check-in</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 1 ampliada</td></tr>
+          <tr><td>RF-14</td><td>Mostrar detalle de reservas según política de visibilidad</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1 ampliada</td></tr>
+          <tr><td>RF-15</td><td>Gestionar lista nominal de participantes</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1 ampliada</td></tr>
+          <tr><td>RF-16</td><td>Notificar e invitar a los participantes</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1 ampliada</td></tr>
+          <tr><td>RF-17</td><td>Recursos compartidos/móviles con disponibilidad propia</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-18</td><td>Responsable/custodio del recurso y a quién solicitarlo</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-19</td><td>Asistente conversacional para la reserva</td><td><span class="pill p-baja">Baja</span></td><td class="fase">Fase 3</td></tr>
+          <tr><td>RF-20</td><td>Foto de la sala y plano/ubicación con ruta</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 1 ampliada</td></tr>
+          <tr><td>RF-21</td><td>Reserva de duración flexible (mínimo 30 min)</td><td><span class="pill p-alta">Alta</span></td><td class="fase">Fase 1</td></tr>
+          <tr><td>RF-22</td><td>Sugerencia automática de la primera sala libre</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-23</td><td>Exportar la reserva al calendario personal (.ics)</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 2</td></tr>
+          <tr><td>RF-24</td><td>Selección de sede y sede favorita por defecto</td><td><span class="pill p-media">Media</span></td><td class="fase">Fase 1 ampliada</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="matriz">
+      <h2>Matriz de trazabilidad</h2>
+      <p>Relación bidireccional entre cada requerimiento de negocio (RNG), los requerimientos funcionales que lo satisfacen (RF) y las reglas de negocio asociadas (RN).</p>
+      <table>
+        <thead><tr><th>RNG</th><th>Requerimiento de negocio</th><th>RF</th><th>RN</th></tr></thead>
+        <tbody>
+          <tr><td>RNG-01</td><td>Eliminar conflictos por doble reserva</td><td>RF-03, RF-04</td><td>RN-01</td></tr>
+          <tr><td>RNG-02</td><td>Visibilidad de disponibilidad en tiempo real</td><td>RF-02, RF-14</td><td>—</td></tr>
+          <tr><td>RNG-03</td><td>Registrar / modificar / cancelar la reserva</td><td>RF-03, RF-05, RF-15, RF-16, RF-21, RF-22, RF-23</td><td>RN-05</td></tr>
+          <tr><td>RNG-04</td><td>Validar la capacidad de la sala</td><td>RF-12</td><td>RN-03</td></tr>
+          <tr><td>RNG-05</td><td>Información consolidada para planificación</td><td>RF-11</td><td>—</td></tr>
+          <tr><td>RNG-06a</td><td>Identificación básica del usuario (habilitador)</td><td>RF-09</td><td>—</td></tr>
+          <tr><td>RNG-06b</td><td>Seguridad robusta: SSO/AD, roles, auditoría</td><td>RF-09, RF-10</td><td>—</td></tr>
+          <tr><td>RNG-07</td><td>Optimizar aprovechamiento (anti "no-show")</td><td>RF-07, RF-13</td><td>RN-04</td></tr>
+          <tr><td>RNG-08</td><td>Mantener el catálogo de salas y recursos</td><td>RF-01</td><td>—</td></tr>
+          <tr><td>RNG-09</td><td>Controlar el uso de salas restringidas</td><td>RF-08</td><td>—</td></tr>
+          <tr><td>RNG-10</td><td>Facilitar reuniones periódicas</td><td>RF-06</td><td>RN-02</td></tr>
+          <tr><td>RNG-11</td><td>Gestión de recursos compartidos/móviles</td><td>RF-17, RF-18</td><td>—</td></tr>
+          <tr><td>RNG-12</td><td>Asistencia conversacional para la reserva</td><td>RF-19</td><td>—</td></tr>
+          <tr><td>RNG-13</td><td>Orientación física y trabajo entre sedes</td><td>RF-20, RF-24</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="reglas">
+      <h2>Reglas de negocio</h2>
+      <div class="rn"><span class="rid">RN-01</span><span>Una sala no puede tener dos reservas con horarios solapados.</span></div>
+      <div class="rn"><span class="rid">RN-02</span><span>Una reserva requiere una antelación mínima y máxima parametrizables.</span></div>
+      <div class="rn"><span class="rid">RN-03</span><span>El número de asistentes no puede superar la capacidad de la sala.</span></div>
+      <div class="rn"><span class="rid">RN-04</span><span>Las reservas sin check-in dentro de 15 minutos se liberan automáticamente.</span></div>
+      <div class="rn"><span class="rid">RN-05</span><span>Solo el solicitante o un administrador pueden modificar o cancelar una reserva.</span></div>
+      <div class="rn"><span class="rid">RN-06</span><span>La duración mínima de una reserva es 30 minutos y debe ser múltiplo de 30.</span></div>
+      <div class="rn"><span class="rid">RN-07</span><span>El check-in se realiza escaneando el QR fijo de la sala; el sistema vincula al usuario autenticado con la reserva vigente de esa sala según la hora.</span></div>
+    </section>
+
+    <section id="fases">
+      <h2>Fases de implementación</h2>
+      <div class="phase"><b>Fase 1 — Núcleo de reserva</b><br><span>Catálogo, disponibilidad, registro, validación de solapamiento y capacidad, duración flexible e identificación básica.</span></div>
+      <div class="phase"><b>Fase 1 ampliada — Experiencia completa</b><br><span>Participantes y alertas, visibilidad/privacidad, plano con ruta, check-in por QR y autoliberación, selección de sede favorita.</span></div>
+      <div class="phase"><b>Fase 2 — Coordinación y datos</b><br><span>Recursos compartidos con custodio, aprobaciones, recurrentes, reportes, seguridad robusta, calendario y sugerencia automática.</span></div>
+      <div class="phase"><b>Fase 3 — Inteligencia</b><br><span>Asistente conversacional para gestionar la reserva en lenguaje natural sobre las mismas APIs.</span></div>
+    </section>
+
+    <section id="versionado">
+      <h2>Versionado</h2>
+      <p>La documentación y el prototipo viven en el mismo repositorio Git, lo que da versionamiento nativo: historial, diferencias por cambio y líneas base congeladas con <i>tags</i>. Esta página corresponde a la línea base <b>v1.0-docs</b>.</p>
+      <div class="note"><b>Nota de gobernanza.</b> Este sitio es público (GitHub Pages). Aquí se publica una versión ilustrativa para consulta y demostración. La documentación institucional completa —con justificaciones, nombres y decisiones internas— debe mantenerse en el repositorio interno o privado de la entidad.</div>
+    </section>
+  </main>
+</div>
+
+<footer>SARES · Documentación v1.0-docs · Generada por el equipo de OGTI. La numeración de RNG/RF/RN es propia de la entidad; ajustar a la plantilla oficial cuando corresponda.</footer>
+</body>
+</html>
