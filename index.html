@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SARES · Prototipo de Reserva de Salas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --paper:#F3EFE6; --paper2:#EAE5D8; --card:#FBFAF5; --ink:#191E1B; --ink2:#5C625B;
+    --line:#D9D3C4; --line2:#C8C1AE;
+    --accent:#0E6B5C; --accent-d:#0A5247; --accent-soft:#DBEDE7;
+    --clay:#B0432F; --clay-soft:#F1DDD6;
+    --amber:#B8761B; --amber-soft:#F3E6CC;
+    --shadow:0 1px 2px rgba(25,30,27,.05), 0 8px 30px -12px rgba(25,30,27,.18);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  body{
+    font-family:'Spline Sans',system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1200px 500px at 90% -10%, #fff7e8 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #e3efe9 0%, transparent 55%),
+      var(--paper);
+    min-height:100%;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif}
+  .hidden{display:none !important}
+
+  /* LOGIN */
+  #login{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr}
+  @media(max-width:860px){#login{grid-template-columns:1fr}}
+  .login-art{position:relative;overflow:hidden;color:#F3EFE6;
+    background:linear-gradient(150deg,#0A5247 0%,#0E6B5C 45%,#137a63 100%);
+    padding:54px 48px;display:flex;flex-direction:column;justify-content:space-between}
+  @media(max-width:860px){.login-art{display:none}}
+  .login-art::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 2px, transparent 2px 22px);pointer-events:none}
+  .badge-gov{display:inline-flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+  .badge-gov span{width:9px;height:9px;border-radius:50%;background:#E7C66B;box-shadow:0 0 0 4px rgba(231,198,107,.25)}
+  .login-art h1{font-size:clamp(34px,4.6vw,56px);line-height:1.02;font-weight:600;margin-top:18px;max-width:11ch}
+  .login-art .sub{margin-top:18px;max-width:34ch;opacity:.86;font-size:15.5px;line-height:1.6}
+  .art-rooms{display:flex;gap:10px;margin-top:32px;flex-wrap:wrap}
+  .art-pill{font-size:12.5px;padding:7px 13px;border:1px solid rgba(255,255,255,.28);border-radius:999px;opacity:.92}
+  .art-foot{font-size:12.5px;opacity:.6;letter-spacing:.03em}
+  .login-form{display:flex;align-items:center;justify-content:center;padding:40px 30px}
+  .login-card{width:100%;max-width:400px}
+  .login-card .eyebrow{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .login-card h2{font-size:30px;font-weight:600;margin:8px 0 6px}
+  .login-card p.lead{color:var(--ink2);font-size:14.5px;line-height:1.55;margin-bottom:26px}
+  label.fld{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+  .input{width:100%;padding:13px 15px;border:1px solid var(--line2);border-radius:11px;background:var(--card);font-size:15px;color:var(--ink);transition:.18s;outline:none}
+  .input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .field{margin-bottom:18px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 18px;border-radius:11px;font-weight:600;font-size:15px;transition:.18s}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{background:var(--accent-d);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+  .btn-ghost:hover{background:var(--paper2)}
+  .divider{display:flex;align-items:center;gap:14px;color:var(--ink2);font-size:12.5px;margin:18px 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .secure-note{margin-top:22px;font-size:12.5px;color:var(--ink2);line-height:1.55;background:var(--paper2);border:1px dashed var(--line2);border-radius:11px;padding:13px 15px}
+  .secure-note b{color:var(--ink)}
+  #passkey{position:fixed;inset:0;background:rgba(20,24,21,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:80}
+  .pk-card{background:var(--card);border-radius:18px;padding:34px 32px;width:min(360px,90vw);text-align:center;box-shadow:var(--shadow)}
+  .pk-ring{width:84px;height:84px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;background:var(--accent-soft);position:relative}
+  .pk-ring svg{width:38px;height:38px;color:var(--accent)}
+  .pk-ring::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px solid var(--accent);border-top-color:transparent;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pk-card h3{font-size:20px;font-weight:600;margin-bottom:8px}
+  .pk-card p{color:var(--ink2);font-size:14px;line-height:1.5}
+
+  /* APP */
+  #app{max-width:1280px;margin:0 auto;padding:22px clamp(14px,3vw,30px) 90px}
+  .topbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{width:40px;height:40px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:'Fraunces';font-weight:600;font-size:20px;box-shadow:var(--shadow)}
+  .brand .nm{font-family:'Fraunces';font-weight:600;font-size:21px;line-height:1}
+  .brand .tg{font-size:12px;color:var(--ink2);margin-top:2px}
+  .spacer{flex:1}
+  .trace-toggle{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2);font-weight:500;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px 7px 14px}
+  .switch{position:relative;width:42px;height:24px;border-radius:999px;background:var(--line2);transition:.2s;flex:0 0 auto}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch.on{background:var(--accent)}
+  .switch.on::after{transform:translateX(18px)}
+  .userchip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 14px 5px 5px}
+  .userchip .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--amber));color:#fff;display:grid;place-items:center;font-weight:600;font-size:14px}
+  .userchip .un{font-size:13.5px;font-weight:600;line-height:1.1}
+  .userchip .ur{font-size:11.5px;color:var(--ink2)}
+  .logout{font-size:12px;color:var(--ink2);text-decoration:underline;margin-left:4px;cursor:pointer}
+
+  .controlbar{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:18px 0 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);position:relative}
+  .ctrl{display:flex;flex-direction:column;gap:6px}
+  .ctrl label{font-size:12px;font-weight:600;color:var(--ink2)}
+  .datenav{display:flex;align-items:center;gap:6px}
+  .datenav button{width:32px;height:32px;border-radius:9px;border:1px solid var(--line2);background:var(--card);font-size:16px;color:var(--ink);display:grid;place-items:center}
+  .datenav button:hover{background:var(--paper2)}
+  .datenav .dlabel{font-weight:600;min-width:200px;text-align:center;font-size:14.5px;text-transform:capitalize}
+  select.input{padding:9px 12px;font-size:14px;border-radius:9px}
+  .ctrl select{min-width:150px}
+  .planobtn{font-size:13.5px;color:var(--accent);border:1px solid var(--line2);background:var(--card);border-radius:10px;padding:10px 15px;font-weight:600;align-self:flex-end}
+  .planobtn:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:2px 2px 16px;font-size:12.5px;color:var(--ink2);align-items:center}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  .gridwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}
+  table.grid{border-collapse:collapse;width:100%;min-width:1340px}
+  table.grid th,table.grid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+  table.grid thead th{background:var(--paper2);font-size:12px;font-weight:600;color:var(--ink2);padding:10px 4px;position:sticky;top:0;z-index:2}
+  table.grid thead th.half{color:#aaa291;font-weight:500;font-size:11px}
+  table.grid thead th.roomhead{text-align:left;padding-left:18px;min-width:230px}
+  .roomcell{padding:12px 14px 12px 18px;text-align:left;vertical-align:top;background:var(--card)}
+  .roomcell .rn{font-weight:600;font-size:14.5px}
+  .roomcell .rm{font-size:11px;color:var(--ink2);margin-top:3px}
+  .roomcell .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+  .rtag{font-size:10.5px;padding:2px 7px;border-radius:6px;background:var(--paper2);color:var(--ink2);border:1px solid var(--line)}
+  .room-actions{display:flex;gap:7px;margin-top:9px}
+  .room-actions button{font-size:11px;color:var(--accent);border:1px solid var(--line2);background:var(--card);border-radius:7px;padding:4px 9px;font-weight:600}
+  .room-actions button:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .slot{height:62px;padding:4px;text-align:center;vertical-align:middle;cursor:pointer;transition:.12s;position:relative;min-width:56px}
+  .slot.free:hover{background:var(--accent-soft)}
+  .slot.free .plus{opacity:0;font-size:18px;color:var(--accent);transition:.12s}
+  .slot.free:hover .plus{opacity:1}
+  .slot.busy{cursor:pointer;background:repeating-linear-gradient(45deg,var(--clay-soft) 0 7px,#f6e4dd 7px 14px)}
+  .resv{height:100%;border-radius:8px;background:var(--clay);color:#fff;padding:6px 9px;text-align:left;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+  .resv.mine{background:var(--accent)}
+  .resv.pub{background:#9a6516}
+  .resv .rt{font-size:11.5px;font-weight:600;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .resv .rtm{font-size:10px;opacity:.85;margin-top:2px}
+  .resv .ro{font-size:10px;opacity:.8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .rf{display:none;font-family:'Spline Sans';font-size:10px;font-weight:700;letter-spacing:.03em;background:#191E1B;color:#E7C66B;padding:2px 7px;border-radius:6px;vertical-align:middle}
+  body.trace .rf{display:inline-block}
+  body.trace [data-rfedge]{outline:2px dashed rgba(184,118,27,.55);outline-offset:3px;border-radius:8px}
+  .rf-float{position:absolute;top:-9px;left:14px;display:none}
+  body.trace .rf-float{display:inline-block}
+
+  #overlay{position:fixed;inset:0;background:rgba(20,24,21,.4);backdrop-filter:blur(3px);z-index:60;display:none}
+  #overlay.show{display:block}
+  .panel{position:fixed;top:0;right:0;height:100%;width:min(480px,100vw);background:var(--paper);box-shadow:-12px 0 40px -18px rgba(0,0,0,.4);transform:translateX(100%);transition:.32s cubic-bezier(.4,0,.2,1);z-index:61;display:flex;flex-direction:column;overflow-y:auto}
+  .panel.show{transform:translateX(0)}
+  .panel-head{padding:22px 24px 16px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:2}
+  .panel-head .ph-k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .panel-head h3{font-size:23px;font-weight:600;margin-top:5px}
+  .panel-head .ph-sub{font-size:13.5px;color:var(--ink2);margin-top:4px}
+  .panel-close{position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:9px;background:var(--paper2);font-size:18px;color:var(--ink);display:grid;place-items:center}
+  .panel-close:hover{background:var(--line)}
+  .panel-body{padding:20px 24px 30px;flex:1}
+  .pblock{margin-bottom:20px}
+  .pblock>.plab{font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .ident{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .ident .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--amber));color:#fff;display:grid;place-items:center;font-weight:600}
+  .ident .nm{font-weight:600;font-size:14.5px}
+  .ident .rr{font-size:12px;color:var(--ink2)}
+  .ident .verified{margin-left:auto;font-size:11px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:4px}
+  textarea.input{resize:vertical;min-height:64px;font-family:inherit}
+  .dur-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .dur-row select{flex:0 0 auto;min-width:130px}
+  .dur-end{font-size:13.5px;color:var(--ink2)}
+  .dur-end b{color:var(--ink)}
+  .part-add{display:flex;gap:8px}
+  .part-add .input{flex:1}
+  .part-add button{flex:0 0 auto;padding:0 16px;border-radius:11px;background:var(--accent);color:#fff;font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:6px 8px 6px 12px;font-size:13px}
+  .chip .x{width:18px;height:18px;border-radius:50%;background:var(--paper2);display:grid;place-items:center;font-size:12px;color:var(--ink2);cursor:pointer}
+  .chip .x:hover{background:var(--clay-soft);color:var(--clay)}
+  .cap{font-size:12.5px;margin-top:10px;padding:9px 12px;border-radius:9px}
+  .cap.ok{background:var(--accent-soft);color:var(--accent-d)}
+  .cap.warn{background:var(--clay-soft);color:var(--clay);font-weight:600}
+  .res-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--card);margin-bottom:9px;cursor:pointer;transition:.15s}
+  .res-item:hover{border-color:var(--accent)}
+  .res-item.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .res-item.busy{opacity:.6;cursor:not-allowed}
+  .res-cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--line2);display:grid;place-items:center;flex:0 0 auto;font-size:13px;color:#fff}
+  .res-item.sel .res-cb{background:var(--accent);border-color:var(--accent)}
+  .res-info{flex:1}
+  .res-info .rname{font-weight:600;font-size:14px}
+  .res-info .rstate{font-size:12px;margin-top:2px}
+  .rstate.free{color:var(--accent)}
+  .rstate.used{color:var(--clay)}
+  .res-info .custodian{font-size:12px;color:var(--amber);margin-top:4px;display:none}
+  .res-item.sel .custodian{display:block}
+  .panel-foot{padding:16px 24px 22px;border-top:1px solid var(--line);background:var(--card);position:sticky;bottom:0}
+  .btn-foot{background:var(--accent);color:#fff}
+  .btn-foot:disabled{background:var(--line2);cursor:not-allowed}
+  .detail-row{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .detail-row .dk{width:120px;color:var(--ink2);flex:0 0 auto;font-size:13px}
+  .restricted{text-align:center;padding:30px 20px;color:var(--ink2)}
+  .restricted .lk{font-size:34px}
+  .restricted h4{font-family:'Fraunces';font-size:19px;color:var(--ink);margin:12px 0 6px}
+  .restricted p{font-size:13.5px;line-height:1.55;max-width:30ch;margin:0 auto}
+  .confirm-wrap{text-align:center;padding:12px 6px}
+  .check{width:74px;height:74px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;margin:0 auto 16px;animation:pop .4s cubic-bezier(.2,1.3,.5,1)}
+  @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+  .check svg{width:36px;height:36px;color:var(--accent)}
+  .confirm-wrap h3{font-size:23px;font-weight:600}
+  .confirm-wrap .csum{font-size:14px;color:var(--ink2);margin-top:6px;line-height:1.5}
+  .alerts{margin-top:22px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .alerts .ah{padding:12px 15px;font-size:12.5px;font-weight:600;color:var(--ink2);background:var(--paper2);display:flex;align-items:center;gap:8px}
+  .alert-row{display:flex;align-items:center;gap:10px;padding:11px 15px;border-top:1px solid var(--line);font-size:13.5px}
+  .alert-row .ad{margin-left:auto;font-size:11.5px;color:var(--accent);font-weight:600}
+  .alert-row .mini{width:28px;height:28px;border-radius:50%;background:var(--paper2);display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--ink2)}
+
+  /* media modal */
+  #mediaModal{position:fixed;inset:0;background:rgba(20,24,21,.45);backdrop-filter:blur(4px);z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+  #mediaModal.show{display:flex}
+  .media-card{background:var(--paper);border-radius:18px;width:min(640px,96vw);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
+  .media-head{padding:16px 22px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;display:flex;align-items:center;gap:10px;z-index:2}
+  .media-head h3{font-size:18px;font-weight:600}
+  .media-close{margin-left:auto;width:32px;height:32px;border-radius:9px;background:var(--paper2);font-size:18px}
+  .media-close:hover{background:var(--line)}
+  .media-body{padding:18px 22px 24px}
+  .media-body svg{width:100%;height:auto;border-radius:12px;display:block;margin-bottom:6px}
+  .plan-label{font-size:12.5px;color:var(--ink2);margin:14px 0 4px;font-weight:600}
+  .dir{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+  .dir-bldg{flex:1;min-width:230px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px}
+  .dir-sede{font-weight:700;font-size:14px;margin-bottom:6px}
+  .dir-floor{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px dashed var(--line)}
+  .dir-fl{font-size:12px;color:var(--ink2);font-weight:600;width:54px;flex:0 0 auto;padding-top:6px}
+  .dir-rooms{display:flex;gap:7px;flex-wrap:wrap}
+  .dir-room{font-size:12.5px;padding:6px 11px;border-radius:8px;background:var(--paper2);border:1px solid var(--line)}
+  .dir-room.hl{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+
+  .agent-fab{position:fixed;bottom:22px;right:22px;z-index:55;background:var(--ink);color:var(--paper);border-radius:999px;padding:13px 20px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+  .agent-fab:hover{transform:translateY(-2px)}
+  .agent-fab .pulse{width:8px;height:8px;border-radius:50%;background:#E7C66B;animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(231,198,107,.6)}70%{box-shadow:0 0 0 9px rgba(231,198,107,0)}100%{box-shadow:0 0 0 0 rgba(231,198,107,0)}}
+  .agent-panel{position:fixed;bottom:80px;right:22px;width:min(360px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);z-index:56;overflow:hidden;display:none;flex-direction:column;max-height:74vh}
+  .agent-panel.show{display:flex}
+  .agent-head{padding:16px 18px;background:linear-gradient(135deg,#0A5247,#137a63);color:#fff}
+  .agent-head .at{font-family:'Fraunces';font-weight:600;font-size:17px}
+  .agent-head .as{font-size:12px;opacity:.85;margin-top:2px}
+  .agent-head .ph3{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:700;background:rgba(255,255,255,.18);padding:3px 9px;border-radius:6px;letter-spacing:.04em}
+  .agent-msgs{padding:16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+  .msg{max-width:84%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.45}
+  .msg.bot{background:var(--card);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+  .msg.me{background:var(--accent);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+  .agent-sugs{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);background:var(--card)}
+  .sug{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:7px 12px;color:var(--ink);background:var(--paper)}
+  .sug:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .agent-input{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line);background:var(--card)}
+  .agent-input input{flex:1;border:1px solid var(--line2);border-radius:999px;padding:10px 14px;font-size:13.5px;font-family:inherit;outline:none}
+  .agent-input input:focus{border-color:var(--accent)}
+  .agent-input button{background:var(--accent);color:#fff;width:40px;border-radius:50%;flex:0 0 auto;font-size:16px}
+
+  /* check-in + calendario + toast */
+  .ci-card{margin-top:22px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 16px}
+  .ci-head{font-size:12.5px;font-weight:600;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px}
+  .qr{display:flex;justify-content:center;margin:0 auto 10px;width:128px;height:128px;background:#FBFAF5;border-radius:10px;padding:4px;align-items:center}
+  .qr img,.qr canvas,.qr table{width:120px !important;height:120px !important}
+  .ci-code{font-size:13px;font-weight:600;letter-spacing:.05em}
+  .ci-note{font-size:12px;color:var(--ink2);line-height:1.5;margin:8px auto 14px;max-width:32ch}
+  .ci-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .ci-b{font-size:12.5px;font-weight:600;padding:9px 13px;border-radius:9px;border:1px solid var(--line2);background:var(--paper);color:var(--ink)}
+  .ci-b:hover{background:var(--paper2)}
+  .ci-b.ci-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ci-done{background:var(--accent-soft);color:var(--accent-d);font-weight:600;font-size:13.5px;padding:16px;border-radius:10px}
+  .ci-rel{background:var(--clay-soft);color:var(--clay);font-weight:600;font-size:13px;padding:16px;border-radius:10px;line-height:1.5}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:500;z-index:90;opacity:0;transition:.3s;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .door-sign{display:inline-block;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:16px 24px}
+  .ds-top{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink2);text-transform:uppercase}
+  .ds-room{font-family:'Fraunces';font-size:20px;font-weight:600;margin-top:6px}
+  .ds-sub{font-size:12px;color:var(--ink2)}
+  .about-link{color:inherit;text-decoration:underline;cursor:pointer;font-weight:600;opacity:.95}
+  .about-link:hover{color:var(--accent)}
+  .about-hero{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:16px}
+  .about-cap{font-size:11.5px;color:var(--ink2);text-align:center;margin-top:-6px;margin-bottom:18px;font-style:italic}
+  .about-mission{font-size:14.5px;line-height:1.6;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+  .about-mission b{color:var(--accent)}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .team-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .team-av{width:52px;height:52px;border-radius:50%;margin:0 auto 9px;display:grid;place-items:center;font-weight:700;color:#fff;font-size:17px}
+  .team-name{font-weight:600;font-size:14px}
+  .team-role{font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .about-foot{font-size:12.5px;color:var(--ink2);margin-top:18px;line-height:1.55;text-align:center;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login">
+  <div class="login-art">
+    <div>
+      <div class="badge-gov"><span></span> Entidad · Oficina de Tecnologías de la Información</div>
+      <h1>Salas que se reservan solas. Casi.</h1>
+      <p class="sub">Consulta la disponibilidad real, reserva en bloques de 30 minutos y coordina recursos sin correos cruzados ni dobles reservas.</p>
+      <div class="art-rooms">
+        <span class="art-pill">2 sedes</span>
+        <span class="art-pill">Proyectores compartidos</span>
+        <span class="art-pill">Videoconferencia</span>
+        <span class="art-pill">Sin conflictos</span>
+      </div>
+    </div>
+    <div class="art-foot">SARES · v1.3 · <a class="about-link" onclick="openAbout()">Conoce al equipo →</a></div>
+  </div>
+  <div class="login-form">
+    <div class="login-card">
+      <div class="eyebrow">Acceso institucional</div>
+      <h2>Identifícate</h2>
+      <p class="lead">Ingresa tu usuario de la entidad y confirma que eres tú con tu llave de acceso del dispositivo.</p>
+      <div class="field">
+        <label class="fld" for="user">Usuario institucional</label>
+        <input class="input" id="user" type="text" value="adolfus.ramirez" autocomplete="username" placeholder="nombre.apellido">
+      </div>
+      <button class="btn btn-primary" id="btnPasskey">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="4"/><path d="M9 13v8l2-2 2 2"/><path d="M14.5 7.5a4 4 0 0 1 0 5"/><path d="M17 5a7 7 0 0 1 0 9"/></svg>
+        Acceder con llave de acceso (passkey)
+      </button>
+      <div class="divider">o</div>
+      <button class="btn btn-ghost" id="btnPass">Usar contraseña</button>
+      <div class="secure-note">
+        <b>Mecanismo del prototipo.</b> "Passkey" simula autenticación sin contraseña basada en el dispositivo (huella / rostro / PIN local, estándar <b>WebAuthn/FIDO2</b>): nada reutilizable viaja por la red. En producción se conecta al <b>directorio institucional (SSO/AD)</b> — RNG-06a y RNG-06b.
+      </div>
+      <div style="text-align:center;margin-top:18px"><a class="about-link" onclick="openAbout()">Conoce al equipo que lo hace posible →</a></div>
+    </div>
+  </div>
+</section>
+
+<div id="passkey" class="hidden">
+  <div class="pk-card">
+    <div class="pk-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 4-3 7-7 9"/><circle cx="12" cy="11" r="3"/><path d="M12 14v4"/></svg></div>
+    <h3>Verificando que eres tú…</h3>
+    <p>Confirma con tu huella, rostro o PIN del dispositivo.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<main id="app" class="hidden">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">S</div>
+      <div><div class="nm">SARES</div><div class="tg">Sistema de Reservas de Salas</div></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="trace-toggle" id="traceBtn">Modo trazabilidad <span class="switch" id="traceSwitch"></span></button>
+    <div class="userchip">
+      <div class="av">AR</div>
+      <div><div class="un">Adolfus Ramírez</div><div class="ur">Arquitectura de Soluciones</div></div>
+      <span class="logout" id="logout">Salir</span>
+    </div>
+  </div>
+
+  <div class="controlbar" data-rfedge>
+    <span class="rf-float rf">RF-02 · consultar disponibilidad</span>
+    <div class="ctrl">
+      <label>Fecha</label>
+      <div class="datenav"><button id="prevDay">‹</button><div class="dlabel" id="dateLabel">hoy</div><button id="nextDay">›</button></div>
+    </div>
+    <div class="ctrl">
+      <label>Capacidad mínima</label>
+      <select class="input" id="fCap"><option value="0">Cualquiera</option><option value="4">4+ personas</option><option value="6">6+ personas</option><option value="10">10+ personas</option></select>
+    </div>
+    <div class="ctrl">
+      <label>Recurso requerido</label>
+      <select class="input" id="fRes"><option value="">Cualquiera</option><option value="Proyector">Proyector</option><option value="VC">Videoconferencia</option><option value="Pizarra">Pizarra</option></select>
+    </div>
+    <div class="spacer"></div>
+    <button class="planobtn" onclick="bookNow()" style="background:var(--accent);color:#fff;border-color:var(--accent)">⚡ Sala libre ahora <span class="rf">RF-22</span></button>
+    <button class="planobtn" onclick="openLoc(null)">📍 Plano de salas <span class="rf">RF-20</span></button>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--accent-soft);border:1px solid var(--accent)"></i> Disponible (clic = reservar)</span>
+    <span><i class="dot" style="background:var(--clay)"></i> Ocupada</span>
+    <span><i class="dot" style="background:#9a6516"></i> Reunión pública</span>
+    <span><i class="dot" style="background:var(--accent)"></i> Tuya</span>
+    <span style="color:var(--ink2)">· columnas de 30 min</span>
+    <span class="rf">RF-14 · detalle según visibilidad</span>
+  </div>
+
+  <div class="gridwrap"><table class="grid" id="grid"></table></div>
+</main>
+
+<!-- slide-over -->
+<div id="overlay"></div>
+<aside class="panel" id="panel">
+  <div class="panel-head">
+    <button class="panel-close" id="panelClose">×</button>
+    <div class="ph-k" id="panelK">Reservar</div>
+    <h3 id="panelTitle">Sala</h3>
+    <div class="ph-sub" id="panelSub"></div>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-foot hidden" id="panelFoot"><button class="btn btn-foot" id="confirmBtn">Confirmar reserva</button></div>
+</aside>
+
+<!-- media modal -->
+<div id="mediaModal">
+  <div class="media-card">
+    <div class="media-head"><h3 id="mediaTitle"></h3><button class="media-close" onclick="closeMedia()">×</button></div>
+    <div class="media-body" id="mediaBody"></div>
+  </div>
+</div>
+
+<!-- agent -->
+<button class="agent-fab" id="agentFab"><span class="pulse"></span> Asistente</button>
+<div class="agent-panel" id="agentPanel">
+  <div class="agent-head"><div class="at">Asistente de reservas</div><div class="as">Reserva hablando, no tecleando</div><span class="ph3">RF-19 · Vista previa (Fase 3)</span></div>
+  <div class="agent-msgs" id="agentMsgs"></div>
+  <div class="agent-sugs" id="agentSugs"></div>
+  <div class="agent-input"><input id="agentInput" placeholder="Escríbele al asistente…"><button id="agentSend">↑</button></div>
+</div>
+
+<script>
+/* ===== DATA (en memoria, sin backend) ===== */
+const START=480, END=1080, STEP=30, NSLOTS=(END-START)/STEP; // 08:00–18:00, slots de 30 min
+const $ = id => document.getElementById(id);
+const slotTime = i => { const m=START+i*STEP; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+const slotIdx = (h,m=0) => ((h*60+m)-START)/STEP;
+
+const currentUser = {name:'Adolfus Ramírez', area:'Arquitectura de Soluciones', initials:'AR'};
+
+const rooms = [
+  {id:'amazonas', name:'Sala Amazonas', sede:'Sede Central', floor:'Piso 3', loc:'Ala norte',   cap:12, res:['Proyector','VC']},
+  {id:'misti',    name:'Sala Misti',    sede:'Sede Central', floor:'Piso 3', loc:'Ala sur',     cap:6,  res:['Pizarra']},
+  {id:'pacifico', name:'Sala Pacífico', sede:'Sede Central', floor:'Piso 2', loc:'Recepción',   cap:4,  res:['Pizarra']},
+  {id:'titicaca', name:'Sala Titicaca', sede:'Sede Norte',   floor:'Piso 1', loc:'Auditorio',   cap:20, res:['Proyector','VC','Micrófono']},
+  {id:'andes',    name:'Sala Andes',    sede:'Sede Norte',   floor:'Piso 2', loc:'Ala este',    cap:8,  res:['Proyector']},
+];
+
+const sharedResources = [
+  {id:'proj01', name:'Proyector portátil PRO-01', custodian:'Logística — J. Pérez (anexo 2310)', bookings:[{room:'amazonas', start:slotIdx(9), span:2}]},
+  {id:'vckit',  name:'Kit de videoconferencia móvil', custodian:'Soporte TI — M. Salas (anexo 2155)', bookings:[{room:'titicaca', start:slotIdx(16), span:2}]},
+];
+
+let reservations = [
+  {id:1, room:'amazonas', start:slotIdx(9),  span:2, title:'Comité de Presupuesto', org:'M. Quispe', purpose:'Revisión del POI 2026', parts:['M. Quispe','R. Núñez','C. Díaz'], vis:'public'},
+  {id:2, room:'amazonas', start:slotIdx(14), span:2, title:'1:1 Dirección', org:'L. Torres', purpose:'Conversación de desempeño', parts:['L. Torres','J. Ramos'], vis:'private'},
+  {id:3, room:'misti',    start:slotIdx(11), span:3, title:'Sprint Review', org:'Adolfus Ramírez', purpose:'Demo del sprint 14', parts:['Adolfus Ramírez','D. Vega','P. Soto'], vis:'private'},
+  {id:4, room:'titicaca', start:slotIdx(16), span:2, title:'Capacitación SIAF', org:'Capacitación', purpose:'Inducción a nuevos usuarios', parts:['Equipo Capacitación'], vis:'public'},
+  {id:5, room:'pacifico', start:slotIdx(10), span:1, title:'Entrevista', org:'RR.HH.', purpose:'Proceso de selección', parts:['RR.HH.'], vis:'private'},
+];
+let nextId=100, dayOffset=0;
+
+/* ===== LOGIN ===== */
+function doLogin(){ $('passkey').classList.add('hidden'); $('login').classList.add('hidden'); $('app').classList.remove('hidden'); renderDate(); renderGrid(); }
+$('btnPasskey').onclick = () => { $('passkey').classList.remove('hidden'); setTimeout(doLogin,1700); };
+$('btnPass').onclick = () => doLogin();
+
+/* ===== TRAZABILIDAD ===== */
+let trace=false;
+$('traceBtn').onclick = () => { trace=!trace; document.body.classList.toggle('trace',trace); $('traceSwitch').classList.toggle('on',trace); };
+
+/* ===== DATE ===== */
+function renderDate(){ const d=new Date(); d.setDate(d.getDate()+dayOffset);
+  let label=d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
+  if(dayOffset===0) label='Hoy · '+label; $('dateLabel').textContent=label; }
+$('prevDay').onclick=()=>{dayOffset--;renderDate();renderGrid();};
+$('nextDay').onclick=()=>{dayOffset++;renderDate();renderGrid();};
+
+/* ===== GRID ===== */
+function visibleRooms(){ const cap=+$('fCap').value, res=$('fRes').value; return rooms.filter(r=>r.cap>=cap && (!res||r.res.includes(res))); }
+function resvStartingAt(roomId,i){ if(dayOffset!==0) return null; return reservations.find(r=>r.room===roomId&&r.start===i); }
+function slotCovered(roomId,s){ if(dayOffset!==0) return null; return reservations.find(r=>r.room===roomId && r.start<=s && s<r.start+r.span); }
+function renderGrid(){
+  const rs=visibleRooms();
+  let html='<thead><tr><th class="roomhead">Sala</th>';
+  for(let i=0;i<NSLOTS;i++){ const t=slotTime(i); html+=`<th class="${t.endsWith(':30')?'half':''}">${t}</th>`; }
+  html+='</tr></thead><tbody>';
+  rs.forEach(room=>{
+    html+=`<tr><td class="roomcell"><div class="rn">${room.name}</div><div class="rm">${room.sede} · ${room.floor} · ${room.loc} · hasta ${room.cap}</div><div class="tags">${room.res.map(x=>`<span class="rtag">${x}</span>`).join('')}</div><div class="room-actions"><button onclick="openPhoto('${room.id}')">📷 Foto</button><button onclick="openLoc('${room.id}')">📍 Ubicación</button><button onclick="openDoorQR('${room.id}')">🚪 QR puerta</button></div></td>`;
+    let i=0;
+    while(i<NSLOTS){
+      const r=resvStartingAt(room.id,i);
+      if(r){
+        const span=Math.min(r.span,NSLOTS-i);
+        const cls=r.org===currentUser.name?'mine':(r.vis==='public'?'pub':'');
+        const auth=(r.vis==='public'||r.org===currentUser.name);
+        const tr=slotTime(r.start)+'–'+slotTime(r.start+r.span);
+        html+=`<td class="slot busy" colspan="${span}" onclick="openDetail(${r.id})"><div class="resv ${cls}"><div class="rt">${auth?r.title:'Reservada'}</div><div class="rtm">${tr}</div><div class="ro">${auth?r.org:'privada'}${r.checkedIn?' · ✓ en uso':''}</div></div></td>`;
+        i+=span;
+      } else { html+=`<td class="slot free" onclick="openBooking('${room.id}',${i})"><span class="plus">+</span></td>`; i++; }
+    }
+    html+='</tr>';
+  });
+  $('grid').innerHTML=html+'</tbody>';
+}
+$('fCap').onchange=renderGrid; $('fRes').onchange=renderGrid;
+
+/* ===== PANEL ===== */
+function openPanel(){ $('overlay').classList.add('show'); $('panel').classList.add('show'); }
+function closePanel(){ $('overlay').classList.remove('show'); $('panel').classList.remove('show'); }
+$('overlay').onclick=closePanel; $('panelClose').onclick=closePanel;
+
+/* ===== DETAIL (RF-14) ===== */
+function openDetail(id){
+  const r=reservations.find(x=>x.id===id);
+  const auth=r.vis==='public'||r.org===currentUser.name||r.parts.includes(currentUser.name);
+  const room=rooms.find(x=>x.id===r.room);
+  $('panelK').innerHTML='Detalle de la reserva <span class="rf">RF-14</span>';
+  $('panelTitle').textContent=auth?r.title:'Sala ocupada';
+  $('panelSub').textContent=`${room.name} · ${slotTime(r.start)}–${slotTime(r.start+r.span)}`;
+  $('panelFoot').classList.add('hidden');
+  $('panelBody').innerHTML = auth ? `
+      <div class="detail-row"><span class="dk">Asunto</span><span>${r.title}</span></div>
+      <div class="detail-row"><span class="dk">Organiza</span><span>${r.org}</span></div>
+      <div class="detail-row"><span class="dk">Propósito</span><span>${r.purpose}</span></div>
+      <div class="detail-row"><span class="dk">Participantes</span><span>${r.parts.join(', ')}</span></div>
+      <div class="detail-row"><span class="dk">Ubicación</span><span>${room.sede}, ${room.floor}</span></div>
+      <div class="detail-row"><span class="dk">Visibilidad</span><span>${r.vis==='public'?'Pública':'Privada (visible para ti)'}</span></div>`
+    : `<div class="restricted"><div class="lk">🔒</div><h4>Detalle restringido</h4><p>Esta reserva es privada. Por la política de visibilidad (privado por defecto) solo se muestra que la sala está ocupada.</p><div class="detail-row" style="justify-content:center;border:none;margin-top:14px;font-size:13px">Decisión asociada a RNF-05 (protección de datos)</div></div>`;
+  openPanel();
+}
+
+/* ===== BOOKING (RF-03/04/12/15/17/18/21) ===== */
+let booking=null;
+function projectorStatus(srId,start,span){
+  const sr=sharedResources.find(s=>s.id===srId);
+  for(const b of sr.bookings){ if(b.start<start+span && start<b.start+b.span) return {free:false, where:rooms.find(r=>r.id===b.room).name}; }
+  return {free:true};
+}
+function openBooking(roomId,startSlot){
+  const room=rooms.find(r=>r.id===roomId);
+  booking={roomId, start:startSlot, span:2, room, participants:[], resources:[]};
+  $('panelK').innerHTML='Nueva reserva <span class="rf">RF-03</span>';
+  $('panelTitle').textContent=room.name;
+  $('panelSub').textContent=`${room.sede} · ${room.floor} · ${$('dateLabel').textContent.replace('Hoy · ','')}`;
+  $('panelFoot').classList.remove('hidden');
+  $('panelBody').innerHTML=`
+    <div class="pblock">
+      <div class="plab">Duración <span class="rf">RF-21</span></div>
+      <div class="dur-row">
+        <select class="input" id="dur" onchange="changeDur()">
+          <option value="1">30 min</option><option value="2" selected>1 hora</option>
+          <option value="3">1 h 30 min</option><option value="4">2 horas</option>
+          <option value="5">2 h 30 min</option><option value="6">3 horas</option>
+        </select>
+        <div class="dur-end">Inicio <b id="durStart"></b> · Fin <b id="durEnd"></b></div>
+      </div>
+      <div class="cap" id="durMsg"></div>
+    </div>
+    <div class="pblock">
+      <div class="plab">Tu identidad <span class="rf">RNG-06a</span></div>
+      <div class="ident"><div class="av">${currentUser.initials}</div><div><div class="nm">${currentUser.name}</div><div class="rr">${currentUser.area}</div></div><div class="verified">✓ verificada</div></div>
+    </div>
+    <div class="pblock">
+      <div class="plab">¿Para qué necesitas la sala? <span class="rf">RF-03</span></div>
+      <textarea class="input" id="purpose" placeholder="Ej. Reunión de coordinación del proyecto SARES"></textarea>
+    </div>
+    <div class="pblock">
+      <div class="plab">Participantes <span class="rf">RF-15</span></div>
+      <div class="part-add"><input class="input" id="partInput" placeholder="Nombre del participante"><button onclick="addPart()">Agregar</button></div>
+      <div class="chips" id="chips"></div>
+      <div class="cap ok" id="capMsg"></div>
+    </div>
+    <div class="pblock">
+      <div class="plab">Recursos <span class="rf">RF-17 · RF-18</span></div>
+      <div id="resList"></div>
+    </div>`;
+  $('partInput').addEventListener('keydown',e=>{if(e.key==='Enter')addPart();});
+  renderChips(); renderResources(); validateBooking(); openPanel();
+}
+function changeDur(){ booking.span=+$('dur').value; renderResources(); validateBooking(); }
+function addPart(){ const v=$('partInput').value.trim(); if(!v)return; booking.participants.push(v); $('partInput').value=''; renderChips(); validateBooking(); }
+function removePart(i){ booking.participants.splice(i,1); renderChips(); validateBooking(); }
+function renderChips(){ $('chips').innerHTML=booking.participants.map((p,i)=>`<span class="chip">${p}<span class="x" onclick="removePart(${i})">×</span></span>`).join(''); }
+function renderResources(){
+  const room=booking.room;
+  let html=room.res.map(rn=>{ const sel=booking.resources.includes('fix:'+rn)?'sel':'';
+    return `<div class="res-item ${sel}" onclick="toggleRes(this,'${rn}',true)"><div class="res-cb">✓</div><div class="res-info"><div class="rname">${rn} (de la sala)</div><div class="rstate free">Incluido en la sala</div></div></div>`; }).join('');
+  html+=sharedResources.map(sr=>{
+    const st=projectorStatus(sr.id,booking.start,booking.span);
+    if(!st.free){ const i=booking.resources.indexOf(sr.id); if(i>=0)booking.resources.splice(i,1);
+      return `<div class="res-item busy"><div class="res-cb">✓</div><div class="res-info"><div class="rname">${sr.name}</div><div class="rstate used">En uso en ${st.where} en este horario</div></div></div>`; }
+    const sel=booking.resources.includes(sr.id)?'sel':'';
+    return `<div class="res-item ${sel}" onclick="toggleRes(this,'${sr.id}',false)"><div class="res-cb">✓</div><div class="res-info"><div class="rname">${sr.name}</div><div class="rstate free">Disponible en el horario elegido</div><div class="custodian">📞 Solicítalo a: ${sr.custodian}</div></div></div>`;
+  }).join('');
+  $('resList').innerHTML=html;
+}
+function toggleRes(el,key,fixed){ if(el.classList.contains('busy'))return; el.classList.toggle('sel'); const k=fixed?('fix:'+key):key; const i=booking.resources.indexOf(k); if(i>=0)booking.resources.splice(i,1); else booking.resources.push(k); }
+function validateBooking(){
+  const {start,span,roomId,room}=booking;
+  $('durStart').textContent=slotTime(start);
+  $('durEnd').textContent=slotTime(Math.min(start+span,NSLOTS));
+  let durOk=true,dmsg='';
+  if(start+span>NSLOTS){ durOk=false; dmsg='⚠ La duración excede el horario de atención (hasta 18:00).'; }
+  else { for(let s=start;s<start+span;s++){ if(slotCovered(roomId,s)){durOk=false;break;} } if(!durOk) dmsg='⚠ Se cruza con otra reserva en ese rango. Reduce la duración. (RF-04 / RN-01)'; }
+  const dm=$('durMsg');
+  if(durOk){ dm.className='cap ok'; dm.textContent=`Horario libre ${slotTime(start)}–${slotTime(start+span)} ✓`; }
+  else { dm.className='cap warn'; dm.textContent=dmsg; }
+  const total=booking.participants.length+1, cm=$('capMsg');
+  let capOk=true;
+  if(total>room.cap){ capOk=false; cm.className='cap warn'; cm.textContent=`⚠ ${total} asistentes (contándote) superan la capacidad de ${room.cap}. (RF-12 / RN-03)`; }
+  else { cm.className='cap ok'; cm.textContent=`${total} de ${room.cap} asistentes.`; }
+  $('confirmBtn').disabled=!(durOk&&capOk);
+}
+$('confirmBtn').onclick=()=>{
+  const purpose=$('purpose').value.trim()||'Reunión de trabajo';
+  const r={id:nextId++, room:booking.roomId, start:booking.start, span:booking.span, title:purpose.slice(0,26), org:currentUser.name, purpose, parts:[currentUser.name,...booking.participants], vis:'private'};
+  if(dayOffset===0) reservations.push(r);
+  booking.resources.forEach(k=>{ const sr=sharedResources.find(s=>s.id===k); if(sr) sr.bookings.push({room:booking.roomId,start:booking.start,span:booking.span}); });
+  showConfirmation(r); renderGrid();
+};
+function showConfirmation(r){
+  window.__lastResv=r;
+  const room=rooms.find(x=>x.id===r.room);
+  $('panelK').innerHTML='Reserva confirmada'; $('panelTitle').textContent='¡Listo!'; $('panelSub').textContent=''; $('panelFoot').classList.add('hidden');
+  const rec=booking.participants;
+  const rows=rec.length?rec.map(p=>{const ini=p.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="alert-row"><span class="mini">${ini}</span><span>${p}</span><span class="ad">Notificado ✓</span></div>`;}).join('')
+    :`<div class="alert-row" style="color:var(--ink2)">Sin participantes añadidos.</div>`;
+  $('panelBody').innerHTML=`<div class="confirm-wrap">
+    <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h3>${room.name} reservada</h3>
+    <div class="csum">${slotTime(r.start)}–${slotTime(r.start+r.span)} · ${r.purpose}<br>${room.sede}, ${room.floor} · Reserva #${r.id}</div>
+    <div class="alerts"><div class="ah">🔔 Alertas enviadas a los participantes <span class="rf">RF-16</span></div>${rows}</div>
+    <div class="ci-card" id="checkinZone">
+      <div class="ci-head">Confirmación de ingreso en la sala <span class="rf">RF-13 · RN-04</span></div>
+      <div class="ci-note">Al llegar, escanea el <b>QR fijo de la puerta</b> de ${room.name} para confirmar tu ingreso. Si nadie confirma dentro de 15 min del inicio, la sala se libera sola.</div>
+      <div class="ci-btns">
+        <button class="ci-b ci-primary" onclick="openDoorQR('${room.id}')">🚪 Ver el QR de la puerta</button>
+        <button class="ci-b" onclick="simulateRelease(window.__lastResv)">⏱ Simular 15 min sin ingreso</button>
+      </div>
+    </div>
+    <button class="btn" style="background:var(--ink);color:var(--paper);margin-top:14px" onclick="downloadICS(window.__lastResv)">📅 Agregar a mi calendario <span class="rf">RF-23</span></button>
+  </div>`;
+}
+
+/* ===== CHECK-IN + QR (RF-13 / RN-04) ===== */
+function pseudoQR(seed){ // respaldo si la librería no carga
+  let h=0; for(const c of seed) h=(h*31+c.charCodeAt(0))&0xffffffff;
+  const n=21; let cells='';
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){ h=(h*1103515245+12345)&0x7fffffff; if((h>>7)&1) cells+=`<rect x="${x*5}" y="${y*5}" width="5" height="5"/>`; }
+  const f=p=>`<rect x="${p}" y="0" width="35" height="35" fill="none" stroke="#191E1B" stroke-width="5"/>`;
+  return `<svg viewBox="0 0 105 105" width="120" height="120"><g fill="#191E1B">${cells}</g>${f(0)}<rect x="70" y="0" width="35" height="35" fill="none" stroke="#191E1B" stroke-width="5"/><rect x="0" y="70" width="35" height="35" fill="none" stroke="#191E1B" stroke-width="5"/></svg>`;
+}
+function qrRender(box,text){
+  if(!box) return; box.innerHTML='';
+  if(typeof QRCode!=='undefined'){ try{ new QRCode(box,{text,width:120,height:120,colorDark:'#191E1B',colorLight:'#FBFAF5',correctLevel:QRCode.CorrectLevel.M}); }catch(e){ box.innerHTML=pseudoQR(text); } }
+  else { box.innerHTML=pseudoQR(text); }
+}
+function openDoorQR(roomId){
+  const room=rooms.find(x=>x.id===roomId);
+  openMedia(`QR de la puerta — ${room.name} <span class="rf">RF-13</span>`,
+    `<div style="text-align:center">
+       <div class="door-sign"><div class="ds-top">SARES · Confirma tu ingreso</div><div class="qr" id="doorqr" style="margin:12px auto"></div><div class="ds-room">${room.name}</div><div class="ds-sub">${room.sede} · ${room.floor}</div></div>
+       <p class="ci-note" style="margin:14px auto">Este cartel va pegado en la puerta de forma permanente. El código solo identifica la sala — no contiene datos personales ni de la reserva.</p>
+       <button class="ci-b ci-primary" onclick="roomArrive('${room.id}')">📲 Simular llegada y escaneo</button>
+     </div>`);
+  qrRender($('doorqr'),'https://sares.entidad.gob.pe/sala/'+room.id);
+}
+function relevantResv(roomId){
+  const list=reservations.filter(r=>r.room===roomId).sort((a,b)=>a.start-b.start);
+  if(!list.length) return null;
+  const now=new Date(); const s=Math.floor(((now.getHours()*60+now.getMinutes())-START)/STEP);
+  return list.find(r=>r.start<=s && s<r.start+r.span) || list[0]; // demo: la vigente, o la primera del día
+}
+function roomArrive(roomId){
+  const room=rooms.find(x=>x.id===roomId);
+  const r=relevantResv(roomId);
+  let html;
+  if(!r){
+    html=`<div class="ci-rel" style="background:var(--amber-soft);color:var(--amber)">No hay una reunión reservada en ${room.name} en este momento.</div>
+      <button class="ci-b ci-primary" style="margin-top:12px" onclick="closeMedia();bookHere('${roomId}')">⚡ Reservar esta sala ahora</button>`;
+  } else {
+    r.checkedIn=true; renderGrid();
+    const auth=(r.org===currentUser.name||r.parts.includes(currentUser.name));
+    html = auth
+      ? `<div class="ci-done">✓ Ingreso confirmado · estás usando ${room.name} para "${r.title}" (${slotTime(r.start)}–${slotTime(r.start+r.span)}). La sala ya no se liberará.</div>`
+      : `<div class="ci-done" style="background:var(--amber-soft);color:var(--amber)">✓ Ingreso registrado · la sala está en uso (reserva de ${r.org}, "${r.title}"). Se confirmó la ocupación.</div>`;
+  }
+  $('mediaBody').innerHTML=`<div style="text-align:center">${html}</div>`;
+  toast('Ingreso registrado por el QR de la puerta');
+}
+function bookHere(roomId){
+  const now=new Date(); let s=Math.ceil(((now.getHours()*60+now.getMinutes())-START)/STEP);
+  if(s<0||s>=NSLOTS) s=slotIdx(13);
+  dayOffset=0; renderDate();
+  for(let i=s;i<NSLOTS;i++){ if(!slotCovered(roomId,i)){ openBooking(roomId,i); return; } }
+  openBooking(roomId, Math.min(s,NSLOTS-1));
+}
+function simulateRelease(r){
+  if(r.checkedIn){ toast('Esta reserva ya tiene check-in; no se libera.'); return; }
+  const i=reservations.findIndex(x=>x.id===r.id);
+  if(i>=0) reservations.splice(i,1);
+  renderGrid();
+  const z=$('checkinZone'); if(z) z.innerHTML='<div class="ci-rel">⏱ Pasaron 15 min sin check-in → la sala se liberó automáticamente y ya está disponible para otros (RN-04 / RF-13).</div>';
+  toast('Sala liberada por inasistencia');
+}
+
+/* ===== CALENDARIO .ics (RF-23) ===== */
+function gridDate(){ const d=new Date(); d.setDate(d.getDate()+dayOffset); d.setHours(0,0,0,0); return d; }
+function icsDate(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+'00'; }
+function buildICS(r){
+  const ds=gridDate(); ds.setMinutes(START+r.start*STEP);
+  const de=gridDate(); de.setMinutes(START+(r.start+r.span)*STEP);
+  const room=rooms.find(x=>x.id===r.room);
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SARES//Reservas//ES','CALSCALE:GREGORIAN','BEGIN:VEVENT',
+    'UID:sares-'+r.id+'@entidad.gob.pe','DTSTAMP:'+icsDate(new Date()),'DTSTART:'+icsDate(ds),'DTEND:'+icsDate(de),
+    'SUMMARY:'+r.purpose,'LOCATION:'+room.name+', '+room.sede+', '+room.floor,
+    'DESCRIPTION:Reserva SARES #'+r.id+'. Check-in: R'+r.id+'. Participantes: '+r.parts.join(', '),
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+function downloadICS(r){
+  try{
+    const blob=new Blob([buildICS(r)],{type:'text/calendar;charset=utf-8'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download='reserva-'+r.id+'.ics'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast('📅 Evento añadido a tu calendario (.ics)');
+  }catch(e){ toast('Descarga bloqueada en esta vista; funciona al abrir el HTML.'); }
+}
+function toast(m){ const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); },2600); }
+
+/* ===== FOTO + UBICACIÓN / PLANO (RF-20) ===== */
+function openMedia(title,html){ $('mediaTitle').innerHTML=title; $('mediaBody').innerHTML=html; $('mediaModal').classList.add('show'); }
+function closeMedia(){ $('mediaModal').classList.remove('show'); }
+$('mediaModal').addEventListener('click',e=>{ if(e.target.id==='mediaModal') closeMedia(); });
+
+function roomPhotoSVG(room){
+  const screen=room.res.includes('Proyector')||room.res.includes('VC');
+  const board=room.res.includes('Pizarra');
+  const n=Math.min(room.cap,10), cx=185,cy=122,rx=80,ry=36;
+  let chairs='';
+  for(let i=0;i<n;i++){ const a=(i/n)*Math.PI*2-Math.PI/2; const x=(cx+Math.cos(a)*(rx+22)).toFixed(0); const y=(cy+Math.sin(a)*(ry+18)).toFixed(0); chairs+=`<circle cx="${x}" cy="${y}" r="8" fill="#A88D63"/>`; }
+  return `<svg viewBox="0 0 370 205" xmlns="http://www.w3.org/2000/svg">
+    <rect width="370" height="205" rx="12" fill="#ECE6D6"/>
+    <rect y="120" width="370" height="85" fill="#DDD3BC"/>
+    <rect x="22" y="28" width="78" height="54" rx="4" fill="#BFE0EA" stroke="#fff" stroke-width="3"/>
+    <line x1="61" y1="28" x2="61" y2="82" stroke="#fff" stroke-width="3"/>
+    ${screen?'<rect x="150" y="22" width="120" height="62" rx="5" fill="#1f2a28"/><rect x="158" y="30" width="104" height="46" rx="3" fill="#3a6f63"/>':''}
+    ${board?'<rect x="286" y="36" width="62" height="48" rx="4" fill="#fff" stroke="#cfc7b2"/><line x1="296" y1="50" x2="338" y2="50" stroke="#ccc" stroke-width="2"/><line x1="296" y1="60" x2="326" y2="60" stroke="#ccc" stroke-width="2"/>':''}
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#0E6B5C"/>
+    <ellipse cx="${cx}" cy="${cy-4}" rx="${rx}" ry="${ry}" fill="#137a63"/>
+    ${chairs}
+  </svg>
+  <div class="plan-label">${room.cap} personas · ${room.res.join(' · ')}</div>`;
+}
+function floorPlanSVG(room){
+  const peers=rooms.filter(r=>r.sede===room.sede&&r.floor===room.floor);
+  // celdas del piso: salas reservables + contexto (para que la planta se vea real)
+  const ctx=[{name:'Oficinas'},{name:'Baños'},{name:'Escalera'}];
+  const cells=[...peers.map(p=>({name:p.name.replace('Sala ',''),id:p.id,loc:p.loc})),...ctx];
+  const accessW=96, padL=16, colW=148, roomW=120, roomH=58;
+  const topY=52, corrTop=124, corrH=38, botY=corrTop+corrH+18;
+  const corrY=corrTop+corrH/2;
+  const cols=Math.ceil(cells.length/2);
+  const W=Math.max(480, accessW+padL+cols*colW+16);
+  const H=botY+roomH+34;
+  const startX=accessW+padL;
+  let target=null, g='';
+  cells.forEach((c,i)=>{
+    const col=Math.floor(i/2), top=(i%2===0);
+    const x=startX+col*colW, y=top?topY:botY, hl=c.id===room.id;
+    const fill=hl?'#0E6B5C':(c.id?'#EDE7D8':'#E7E1D1');
+    const tcol=hl?'#fff':'#191E1B';
+    const doorX=x+roomW/2, doorY=top?(y+roomH):y;
+    if(hl) target={doorX,doorY,top};
+    g+=`<g>
+      <rect x="${x}" y="${y}" width="${roomW}" height="${roomH}" rx="8" fill="${fill}" stroke="#C8C1AE"/>
+      <text x="${x+roomW/2}" y="${y+roomH/2-1}" text-anchor="middle" font-size="${c.id?12.5:11}" font-weight="600" font-family="Spline Sans" fill="${tcol}">${c.name}</text>
+      ${c.id?`<text x="${x+roomW/2}" y="${y+roomH/2+15}" text-anchor="middle" font-size="9.5" font-family="Spline Sans" fill="${hl?'rgba(255,255,255,.85)':'#5C625B'}">${hl?'tu sala':c.loc}</text>`:''}
+      <rect x="${doorX-9}" y="${doorY-2}" width="18" height="4" fill="${fill}"/>
+      <path d="M ${doorX-9} ${doorY} A 17 17 0 0 ${top?0:1} ${doorX-9} ${top?doorY-17:doorY+17}" fill="none" stroke="#b3aa92" stroke-width="1.4"/>
+    </g>`;
+  });
+  let route='';
+  if(target){
+    const ax=accessW, tx=target.doorX, dy=target.doorY;
+    const baseY=target.top?dy+10:dy-10;
+    route=`<polyline points="${ax},${corrY} ${tx},${corrY} ${tx},${dy}" fill="none" stroke="#B8761B" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>
+      <polygon points="${tx-5},${baseY} ${tx+5},${baseY} ${tx},${dy}" fill="#B8761B"/>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${W}" height="${H}" rx="12" fill="#F3EFE6" stroke="#D9D3C4"/>
+    <text x="16" y="26" font-size="13" font-weight="700" font-family="Spline Sans" fill="#191E1B">${room.sede} — ${room.floor}</text>
+    <text x="16" y="42" font-size="10.5" font-family="Spline Sans" fill="#8a8169">Ruta desde los ascensores hasta tu sala</text>
+    <rect x="${accessW}" y="${corrTop}" width="${W-accessW-12}" height="${corrH}" fill="#E3DCC9"/>
+    <text x="${(W+accessW)/2}" y="${corrY+4}" text-anchor="middle" font-size="10.5" font-family="Spline Sans" fill="#9a9079">pasillo</text>
+    <rect x="12" y="${topY}" width="${accessW-16}" height="${H-topY-22}" rx="8" fill="#D7CFBA" stroke="#C8C1AE"/>
+    <rect x="22" y="${corrY-28}" width="${accessW-36}" height="24" rx="3" fill="#fbfaf5" stroke="#c8c1ae"/>
+    <rect x="22" y="${corrY+6}" width="${accessW-36}" height="24" rx="3" fill="#fbfaf5" stroke="#c8c1ae"/>
+    <text x="${(accessW+6)/2}" y="${topY+22}" text-anchor="middle" font-size="10" font-weight="600" font-family="Spline Sans" fill="#5C625B">Acceso</text>
+    <text x="${(accessW+6)/2}" y="${H-32}" text-anchor="middle" font-size="9.5" font-family="Spline Sans" fill="#5C625B">ascensores</text>
+    ${route}
+    <circle cx="${accessW}" cy="${corrY}" r="7" fill="#B0432F"/><circle cx="${accessW}" cy="${corrY}" r="3" fill="#fff"/>
+    <text x="${accessW+6}" y="${corrY-13}" font-size="10" font-weight="700" font-family="Spline Sans" fill="#B0432F">estás aquí</text>
+    ${g}
+  </svg>
+  <div class="plan-label">🚪 puerta (con su giro) · ▦ ascensores · línea punteada ámbar = ruta sugerida</div>`;
+}
+function dirHTML(hl){
+  const sedes={};
+  rooms.forEach(r=>{ sedes[r.sede]=sedes[r.sede]||{}; (sedes[r.sede][r.floor]=sedes[r.sede][r.floor]||[]).push(r); });
+  return `<div class="dir">`+Object.keys(sedes).map(sede=>{
+    const floors=Object.keys(sedes[sede]).sort((a,b)=>(+b.replace(/\D/g,''))-(+a.replace(/\D/g,'')));
+    return `<div class="dir-bldg"><div class="dir-sede">🏢 ${sede}</div>`+floors.map(fl=>
+      `<div class="dir-floor"><div class="dir-fl">${fl}</div><div class="dir-rooms">`+sedes[sede][fl].map(r=>
+        `<div class="dir-room ${r.id===hl?'hl':''}">${r.id===hl?'★ ':''}${r.name.replace('Sala ','')}</div>`).join('')+`</div></div>`).join('')+`</div>`;
+  }).join('')+`</div>`;
+}
+function openPhoto(id){ const r=rooms.find(x=>x.id===id); openMedia(`${r.name} <span class="rf">RF-20</span>`, roomPhotoSVG(r)); }
+function openLoc(id){
+  if(id){ const r=rooms.find(x=>x.id===id);
+    openMedia(`Ubicación — ${r.name} <span class="rf">RF-20</span>`, floorPlanSVG(r)+`<div class="plan-label">Directorio de salas por sede y piso:</div>`+dirHTML(id));
+  } else { openMedia(`Plano de salas <span class="rf">RF-20</span>`, `<div class="plan-label">Salas por sede y piso. Haz clic en "Ubicación" de una sala para ver su planta.</div>`+dirHTML(null)); }
+}
+
+/* ===== RESERVA INMEDIATA (RF-22 · sugerencia automática) ===== */
+function bookNow(){
+  const now=new Date();
+  let s=Math.ceil(((now.getHours()*60+now.getMinutes())-START)/STEP);
+  if(dayOffset!==0 || s<0 || s>=NSLOTS) s=slotIdx(13); // "ahora" demo si está fuera de horario
+  dayOffset=0; renderDate(); renderGrid();
+  for(let i=s;i<NSLOTS;i++){
+    for(const r of visibleRooms()){
+      if(!slotCovered(r.id,i)){
+        openBooking(r.id,i);
+        $('panelK').innerHTML='Sala sugerida automáticamente ⚡ <span class="rf">RF-22</span>';
+        $('panelSub').textContent=`La más próxima libre: ${rooms.find(x=>x.id===r.id).name} a las ${slotTime(i)}`;
+        return;
+      }
+    }
+  }
+  alert('No quedan salas libres en lo que resta del día.');
+}
+
+/* ===== CONÓCENOS / EQUIPO ===== */
+function teamPhotoSVG(){
+  const tones=['#C98B5E','#8C5A3B','#E0A878','#A86C45','#D49A6A'];
+  let people='';
+  const xs=[95,175,255,335,415];
+  xs.forEach((x,i)=>{ const t=tones[i%tones.length];
+    people+=`<g>
+      <path d="M ${x-34} 250 q 0 -56 34 -56 q 34 0 34 56 Z" fill="${['#0E6B5C','#137a63','#B8761B','#0A5247','#9a6516'][i%5]}"/>
+      <circle cx="${x}" cy="168" r="26" fill="${t}"/>
+      <path d="M ${x-26} 162 q 26 -34 52 0 q 0 -26 -26 -26 q -26 0 -26 26 Z" fill="#2b2b2b"/>
+    </g>`;
+  });
+  return `<svg viewBox="0 0 510 250" xmlns="http://www.w3.org/2000/svg" style="display:block">
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E3EFE9"/><stop offset="1" stop-color="#F3EFE6"/></linearGradient></defs>
+    <rect width="510" height="250" fill="url(#sky)"/>
+    <circle cx="430" cy="55" r="120" fill="#DBEDE7" opacity="0.6"/>
+    <rect x="40" y="60" width="80" height="60" rx="6" fill="#EDE7D8" stroke="#D9D3C4"/>
+    <rect x="46" y="66" width="68" height="40" rx="3" fill="#BFE0EA"/>
+    ${people}
+    <rect x="0" y="248" width="510" height="2" fill="#D9D3C4"/>
+  </svg>`;
+}
+function openAbout(){
+  const team=[
+    {n:'Adolfus Ramírez', r:'Arquitecto de Soluciones', c:'#0E6B5C'},
+    {n:'[Nombre]', r:'Líder de Proyecto', c:'#B8761B'},
+    {n:'[Nombre]', r:'Desarrollo Full-Stack', c:'#137a63'},
+    {n:'[Nombre]', r:'Diseño UX/UI', c:'#9a6516'},
+    {n:'[Nombre]', r:'Calidad / QA', c:'#B0432F'},
+  ];
+  const cards=team.map(m=>{ const ini=m.n.replace(/[\[\]]/g,'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'••';
+    return `<div class="team-card"><div class="team-av" style="background:${m.c}">${ini}</div><div class="team-name">${m.n}</div><div class="team-role">${m.r}</div></div>`; }).join('');
+  openMedia('El equipo detrás de SARES',
+    `<div class="about-hero">${teamPhotoSVG()}</div>
+     <div class="about-cap">📷 Reemplaza esta ilustración por una foto real del equipo</div>
+     <div class="about-mission">Somos el equipo de <b>OGTI</b> que diseña y construye herramientas internas para que el día a día en la entidad sea más simple. <b>SARES</b> nació de un problema cotidiano —encontrar y reservar una sala sin choques— y lo convertimos en un sistema simple, accesible y confiable.</div>
+     <div class="team-grid">${cards}</div>
+     <div class="about-foot">¿Ideas o reportes? Escríbenos a <b>ogti-proyectos@entidad.gob.pe</b> · Gracias a las áreas usuarias que probaron las primeras versiones.</div>`);
+}
+
+/* ===== LOGOUT ===== */
+$('logout').onclick=()=>{ $('app').classList.add('hidden'); $('login').classList.remove('hidden'); };
+
+/* ===== AGENT (RF-19 stub) ===== */
+const agentScript={
+ 'Búscame una sala para 6 personas a las 3pm con proyector':'Encontré 2 opciones libres a las 15:00 con proyector: <b>Sala Andes</b> (Sede Norte, P2) y <b>Sala Amazonas</b> (Sede Central, P3). El proyector portátil PRO-01 también está libre. ¿Reservo la Andes 1 hora?',
+ '¿Qué salas tengo reservadas hoy?':'Tienes 1 reserva hoy: <b>Sprint Review</b> en Sala Misti, 11:00–12:30, con D. Vega y P. Soto.',
+ 'Resérvame media hora mañana a las 9':'Listo en concepto: mañana 09:00–09:30 hay varias salas libres. ¿La Sala Pacífico (P2) te sirve? Puedo añadir participantes y avisarles.'
+};
+function agentReply(t){ const k=Object.keys(agentScript).find(x=>x.toLowerCase()===t.toLowerCase());
+  return k?agentScript[k]:'En el prototipo reconozco algunas frases de ejemplo. En la Fase 3 el agente usará las <b>mismas APIs</b> de disponibilidad y reserva que ves en pantalla — solo que conversando. Prueba una sugerencia 👇'; }
+function addMsg(t,w){ const m=document.createElement('div'); m.className='msg '+w; m.innerHTML=t; $('agentMsgs').appendChild(m); $('agentMsgs').scrollTop=$('agentMsgs').scrollHeight; }
+function sendAgent(t){ if(!t.trim())return; addMsg(t,'me'); $('agentInput').value=''; setTimeout(()=>addMsg(agentReply(t),'bot'),450); }
+$('agentFab').onclick=()=>{ const p=$('agentPanel'); p.classList.toggle('show'); if(p.classList.contains('show')&&!$('agentMsgs').children.length){ addMsg('Hola Adolfus 👋 Soy tu asistente de reservas. Puedo buscar salas, revisar recursos y reservar por ti. ¿Qué necesitas?','bot'); } };
+$('agentSend').onclick=()=>sendAgent($('agentInput').value);
+$('agentInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendAgent($('agentInput').value);});
+$('agentSugs').innerHTML=Object.keys(agentScript).map(s=>`<button class="sug">${s}</button>`).join('');
+$('agentSugs').querySelectorAll('.sug').forEach(b=>b.onclick=()=>sendAgent(b.textContent));
+</script>
+</body>
+</html>
